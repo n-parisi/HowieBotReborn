@@ -1,0 +1,6 @@
+.idea/
+resources/
+venv/
+HowieBot1.0.py
+*.iml
+*.pyc
