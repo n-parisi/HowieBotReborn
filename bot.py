@@ -1,8 +1,13 @@
 import os
+
+import discord
 from discord.ext import commands
 
 from cogs.pics import Pics
 from cogs.sounds import Sounds
+
+if not discord.opus.is_loaded():
+    discord.opus.load_opus('opus')
 
 # create bot
 bot = commands.Bot(command_prefix='!', help_command=None)
