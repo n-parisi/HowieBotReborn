@@ -41,10 +41,10 @@ async def play_sound(channel, sound):
 
 
 def get_sounds():
-    return [filename[:filename.index(".")] for filename in os.listdir("resources/sounds")]
+    return [filename[:filename.index(".")] for filename in os.listdir("resources/sounds/")]
 
 
 def get_sound_file(sound):
     for filename in os.listdir("resources/sounds"):
         if sound in filename:
-            return "resources/sounds/" + filename
+            return "resources/sounds/"+filename

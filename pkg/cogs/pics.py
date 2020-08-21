@@ -1,4 +1,3 @@
-import asyncio
 import os
 import random
 
@@ -12,5 +11,5 @@ class Pics(commands.Cog):
 
     @commands.command()
     async def pic(self, ctx):
-        file_name = random.choice(os.listdir("resources/pics"))
+        file_name = random.choice(os.listdir("resources/pics/"))
         await ctx.send(file=discord.File("resources/pics/" + file_name))
