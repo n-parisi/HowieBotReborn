@@ -1,5 +1,6 @@
 .idea/
 resources/
+scripts/
 venv/
 HowieBot1.0.py
 *.iml
