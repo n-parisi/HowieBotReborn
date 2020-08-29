@@ -5,10 +5,18 @@ import random
 import discord
 from discord.ext import commands
 
+from pkg.utils.aws_utils import sync_resources
+from pkg.utils.config import cfg
+
+RESOURCE_PATH = 'resources/sounds/'
+
 
 class Sounds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        if cfg['use_aws_resources']:
+            sync_resources(cfg['bucket_name'], cfg['sounds_prefix'], RESOURCE_PATH)
 
     @commands.command()
     async def play(self, ctx, *, sound='random'):
@@ -25,9 +33,7 @@ class Sounds(commands.Cog):
 
     @commands.command()
     async def sounds(self, ctx):
-        result_str = ''
-        for sound in sorted(get_sounds()):
-            result_str += sound + ', '
+        result_str = ", ".join(sorted(get_sounds()))
         await ctx.send(result_str[:-2])
 
 
@@ -41,10 +47,10 @@ async def play_sound(channel, sound):
 
 
 def get_sounds():
-    return [filename[:filename.index(".")] for filename in os.listdir("resources/sounds/")]
+    return [filename[:filename.index(".")] for filename in os.listdir(RESOURCE_PATH)]
 
 
 def get_sound_file(sound):
-    for filename in os.listdir("resources/sounds"):
+    for filename in os.listdir(RESOURCE_PATH):
         if sound in filename:
-            return "resources/sounds/"+filename
+            return RESOURCE_PATH + filename

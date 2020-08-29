@@ -1,0 +1,4 @@
+use_aws_resources: true
+bucket_name: nparisi-bucket
+pics_prefix: resources/pics/
+sounds_prefix: resources/sounds/

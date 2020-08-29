@@ -1,11 +1,9 @@
 import os
 
-import discord
 from discord.ext import commands
 
 from pkg.cogs.pics import Pics
 from pkg.cogs.sounds import Sounds
-
 
 # create bot
 bot = commands.Bot(command_prefix='!', help_command=None)
