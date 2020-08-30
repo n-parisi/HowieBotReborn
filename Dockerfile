@@ -1,18 +1,16 @@
 FROM python:3.8-slim-buster
-WORKDIR app/
 
-# Install dependencies
+RUN useradd howie
+
+WORKDIR /home/app
+
+# Install system dependencies
 RUN apt-get -y update
 RUN apt-get -y install libffi-dev libnacl-dev python3-dev ffmpeg
 
-# Copy source / resources
-COPY pkg/ pkg/
-COPY resources/ resources/
-COPY main.py main.py
+# Install python dependencies
 COPY requirements.txt .
-
-# Install python requirements
 RUN pip3 install -r requirements.txt
 
-# Start bot
-ENTRYPOINT python3 -u main.py
+# Switch to non-root user
+USER howie
