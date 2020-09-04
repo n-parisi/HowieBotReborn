@@ -1,5 +1,7 @@
 # HowieBotReborn
 
+[![Build Status](https://travis-ci.org/n-parisi/HowieBotReborn.svg?branch=master)](https://travis-ci.org/n-parisi/HowieBotReborn)
+
 A configurable Discord bot that serves images and sound clips. Resources can be synced from a provided
 AWS S3 bucket. This bot is used in a personal Discord server and hosted on AWS. More features will be added.
 
