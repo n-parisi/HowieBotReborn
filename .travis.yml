@@ -1,9 +1,11 @@
 language: python
-sudo: true
 python:
-- '3.8'
+  - '3.8'
 services:
-- docker
+  - docker
+branches:
+  only:
+    - master
 env:
   global:
   - secure: viBXfvpoZQzQ32xdoKHwNUs4Mi0FFTVOgahbPHo4ne7JS2RUdy+q70eN7b8opeWCuoEJWvJ4oZ7jeFkFnL5//LK5zv4pLYCM/kX3ZybRYYpuqyjMpxVMTZi8lwVx/SdEQZYYD8crB9dmT0SY0pSOEK77hkL9xBN35lxybbtIk8rcWn3ukhZyXipXIWuQOKjj9a5okr0BweldkoHzlcNdzla+JvMtE3Ygpf0mbRqj9dZAnQPMiTAgUhSEi9OQz9cgFgjUalvXJ0UhtZB6OuHcI6/5iSz47pPbzl/MXUuBr4H3TI399OQ/T7Wx4MtKVYC3r1Jpy/CQbd7qygN581Qk5ZYIRwRPGLPFRQX9oytDgS8Wus1MqbRKl1Ji33aD3reC62wZlbLBxGJ2sbAo5VlgdiXJqvCKL/XiU8Drxbbf2aYzPOl2YP2TVq3/RLHJpM/wXeC7MaWKLpSB2irurFXW/xuZBl2gsfBmEIgvE/KBIcFtI0gUOHXypUslpylVkFdxJX927h7ksj052LRcDKMosGnMuufA4My9a7X6zP4QgjJ2TZ3u9iY4V2Axd42l9rde/yZKhzASrOaT/EnsWIwV8mo+nl6wbStottdvbHlUVgWPFRfsNHKLZjaleiA7ejmm3kJlTr2T5EyI7BP2p/QHLTBD3yRnmSbF5lSY5Q7X5h0=
@@ -12,14 +14,13 @@ env:
   - secure: ni27gBT9Z83RIsN9jJ45Qnnjr2JBcHkXDp2eD09vATmK/Gj1ZoK7l/cIo1rwytD3WbRzFyExYVddhLxDhFjtTrSuWbN586iL8Y2Vtw5S79wuj5AnvnjcWsn2GjyZSwhQnUKDpXJL5l6QapssRRPUoIzAQpDBVykIbWlW8sgCQFgltS7w52/FiNAzNDgCdM/m+QUhljjQQN5p6fGCB87YOzIl9bZBIqYqglBmCi17OFo1LQOyLz/euybOMwnt4/bzeqQbPY/ec+Qz+HdL3kZ6hCUYJy5qOZm6GKN3e2soBoCM2bxd77FMk3wgk+yowXa6nQwDfTkdQ0TonGvS4inO3qA9tv4+3lE6Dc+rBpy3AqxYkiGbOZaZH0g/eZnvIaaWfpl640LJZhu/Bb9lGfM7pp3wVndZE7WxIpnUava8V/BeHrGzpfLxSYXaCrGNMLqzuC//XNGZJwJ2FzYaNBHU/yjSCtM+9eOivRLBJC8VTaFGjKoGLxeNEhYM/IixRMBufAj82H1J83jwfRg3FsTzhLeCnQZvhkV2jn3UXJJ+VSi2ebvhcLYrA+x0sJlODdUnIpZjgK3kxczb8CmaKORYaxH8MSETMdX+v86n5Y3WMZwHTHbWF1M2aurZvWWL/JEOTzbVjI+riezaRxpK48dTka+k6t6YcAFwBkiIMqhnnRs=
 
 before_install:
-- pip install awscli
-- export PATH=$PATH:$HOME/.local/bin
-- docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
+  - pip install awscli
+  - export PATH=$PATH:$HOME/.local/bin
+  - aws configure set region us-east-1
+  - docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
 install:
-- docker build -t nickparisi/howiebot .
-after_success:
-- docker push nickparisi/howiebot
-deploy:
-  provider: script
-  skip-cleanup: true
-  script: aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment
+  - docker build -t nickparisi/howiebot .
+before_script:
+  - docker push nickparisi/howiebot
+script:
+  - aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment

@@ -23,6 +23,18 @@ async def help(ctx):
                    '   !play <clip name>    Play a specific sound clip```')
 
 
+@bot.command()
+async def build(ctx):
+    if os.environ['TRAVIS']:
+        build_id = os.environ['TRAVIS_BUILD_ID']
+        build_num = os.environ['TRAVIS_BUILD_NUMBER']
+
+        build_id = f'{build_id}---build:{build_num}'
+    else:
+        build_id = "local"
+    await ctx.send(build_id)
+
+
 # start bot
 print("Starting bot!")
 bot.run(os.environ['DISCORD_BOT_TOKEN'])
