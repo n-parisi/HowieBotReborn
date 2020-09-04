@@ -16,7 +16,7 @@ bot.add_cog(Pics(bot))
 # add help command
 @bot.command()
 async def help(ctx):
-    await ctx.send('```Available Commands: \n'
+    await ctx.send('```(Hi from travis!) Available Commands: \n'
                    '   !pic                 Share a random Howie Pic\n'
                    '   !play                Play a random sound clip\n'
                    '   !sounds              List all clips\n'

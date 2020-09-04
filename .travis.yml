@@ -17,6 +17,7 @@ before_install:
   - docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
 install:
   - docker build -t nickparisi/howiebot .
+after_success:
   - docker push nickparisi/howiebot
 script:
   - aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment
