@@ -17,6 +17,5 @@ before_install:
 install:
   - docker build -t nickparisi/howiebot .
   - docker push nickparisi/howiebot
-deploy:
-  provider: script
-  script: aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment
+script:
+  - aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment
