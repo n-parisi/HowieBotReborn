@@ -19,7 +19,7 @@ before_install:
   - aws configure set region us-east-1
   - docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
 install:
-  - docker build -t nickparisi/howiebot .
+  - docker build --build-arg BUILD_ID_ARG=${TRAVIS_BUILD_ID} --build-arg BUILD_NUM_ARG=${TRAVIS_BUILD_NUMBER} -t nickparisi/howiebot .
 before_script:
   - docker push nickparisi/howiebot
 script:
