@@ -1,8 +1,12 @@
 language: python
 python:
-- '3.8'
+  - '3.8'
 services:
-- docker
+  - docker
+branches:
+  only:
+    - master
+    - devops
 env:
   global:
   - secure: viBXfvpoZQzQ32xdoKHwNUs4Mi0FFTVOgahbPHo4ne7JS2RUdy+q70eN7b8opeWCuoEJWvJ4oZ7jeFkFnL5//LK5zv4pLYCM/kX3ZybRYYpuqyjMpxVMTZi8lwVx/SdEQZYYD8crB9dmT0SY0pSOEK77hkL9xBN35lxybbtIk8rcWn3ukhZyXipXIWuQOKjj9a5okr0BweldkoHzlcNdzla+JvMtE3Ygpf0mbRqj9dZAnQPMiTAgUhSEi9OQz9cgFgjUalvXJ0UhtZB6OuHcI6/5iSz47pPbzl/MXUuBr4H3TI399OQ/T7Wx4MtKVYC3r1Jpy/CQbd7qygN581Qk5ZYIRwRPGLPFRQX9oytDgS8Wus1MqbRKl1Ji33aD3reC62wZlbLBxGJ2sbAo5VlgdiXJqvCKL/XiU8Drxbbf2aYzPOl2YP2TVq3/RLHJpM/wXeC7MaWKLpSB2irurFXW/xuZBl2gsfBmEIgvE/KBIcFtI0gUOHXypUslpylVkFdxJX927h7ksj052LRcDKMosGnMuufA4My9a7X6zP4QgjJ2TZ3u9iY4V2Axd42l9rde/yZKhzASrOaT/EnsWIwV8mo+nl6wbStottdvbHlUVgWPFRfsNHKLZjaleiA7ejmm3kJlTr2T5EyI7BP2p/QHLTBD3yRnmSbF5lSY5Q7X5h0=
@@ -17,7 +21,7 @@ before_install:
   - docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
 install:
   - docker build -t nickparisi/howiebot .
-after_success:
+before_script:
   - docker push nickparisi/howiebot
 script:
   - aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment
