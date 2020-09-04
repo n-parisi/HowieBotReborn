@@ -29,15 +29,15 @@ locally at `resources/sounds` and `resources/pics`.
 
 ### Running
 
-All required dependencies are contained in a Docker image hosted on Docker Hub: `nickparisi/howiebot`. This is the 
+All required dependencies are provided in the [gorialis/discord.py](https://hub.docker.com/r/gorialis/discord.py/) image. This is the 
 simplest way to run the bot.
 
 ```
 docker run -it --rm \
    -e DISCORD_BOT_TOKEN=<your token> \
    -v "$PWD":/home/app \
-   nickparisi/howiebot:latest python3 -u main.py
+   gorialis/discord.py /bin/bash -c "pip install -r requirements.txt; python -u main.py"
 ```
 
 Please note you will need to configure AWS credentials if using AWS resources. For running locally, you can add 
-`-e AWS_ACCESS_KEY_ID= -e AWS_SECRET_ACCESS_KEY=` with the appropriate values to the `docker run` command.
+`-e AWS_ACCESS_KEY_ID= -e AWS_SECRET_ACCESS_KEY=` with the appropriate values provided to the `docker run` command.

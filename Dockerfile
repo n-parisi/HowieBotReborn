@@ -1,16 +1,14 @@
-FROM python:3.8-slim-buster
+FROM gorialis/discord.py:3.8.5-buster-master-minimal
 
-RUN useradd howie
-
-WORKDIR /home/app
-
-# Install system dependencies
-RUN apt-get -y update
-RUN apt-get -y install libffi-dev libnacl-dev python3-dev ffmpeg
+# Copy source code
+COPY pkg/ pkg/
+COPY main.py main.py
+COPY requirements.txt requirements.txt
+COPY config.yml config.yml
 
 # Install python dependencies
 COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
-# Switch to non-root user
-USER howie
+# Start bot
+CMD python -u main.py
