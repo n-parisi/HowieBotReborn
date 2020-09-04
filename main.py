@@ -25,14 +25,14 @@ async def help(ctx):
 
 @bot.command()
 async def build(ctx):
-    if os.environ['TRAVIS']:
-        build_id = os.environ['TRAVIS_BUILD_ID']
-        build_num = os.environ['TRAVIS_BUILD_NUMBER']
+    if 'BUILD_ID' in os.environ:
+        build_id = os.environ['BUILD_ID']
+        build_num = os.environ['BUILD_NUM']
 
-        build_id = f'{build_id}---build:{build_num}'
+        build_str = f'{build_id}---build:{build_num}'
     else:
-        build_id = "local"
-    await ctx.send(build_id)
+        build_str = "local-0"
+    await ctx.send(build_str)
 
 
 # start bot
