@@ -1,5 +1,4 @@
 language: python
-sudo: true
 python:
 - '3.8'
 services:
@@ -12,14 +11,12 @@ env:
   - secure: ni27gBT9Z83RIsN9jJ45Qnnjr2JBcHkXDp2eD09vATmK/Gj1ZoK7l/cIo1rwytD3WbRzFyExYVddhLxDhFjtTrSuWbN586iL8Y2Vtw5S79wuj5AnvnjcWsn2GjyZSwhQnUKDpXJL5l6QapssRRPUoIzAQpDBVykIbWlW8sgCQFgltS7w52/FiNAzNDgCdM/m+QUhljjQQN5p6fGCB87YOzIl9bZBIqYqglBmCi17OFo1LQOyLz/euybOMwnt4/bzeqQbPY/ec+Qz+HdL3kZ6hCUYJy5qOZm6GKN3e2soBoCM2bxd77FMk3wgk+yowXa6nQwDfTkdQ0TonGvS4inO3qA9tv4+3lE6Dc+rBpy3AqxYkiGbOZaZH0g/eZnvIaaWfpl640LJZhu/Bb9lGfM7pp3wVndZE7WxIpnUava8V/BeHrGzpfLxSYXaCrGNMLqzuC//XNGZJwJ2FzYaNBHU/yjSCtM+9eOivRLBJC8VTaFGjKoGLxeNEhYM/IixRMBufAj82H1J83jwfRg3FsTzhLeCnQZvhkV2jn3UXJJ+VSi2ebvhcLYrA+x0sJlODdUnIpZjgK3kxczb8CmaKORYaxH8MSETMdX+v86n5Y3WMZwHTHbWF1M2aurZvWWL/JEOTzbVjI+riezaRxpK48dTka+k6t6YcAFwBkiIMqhnnRs=
 
 before_install:
-- pip install awscli
-- export PATH=$PATH:$HOME/.local/bin
-- docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
+  - pip install awscli
+  - export PATH=$PATH:$HOME/.local/bin
+  - docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
 install:
-- docker build -t nickparisi/howiebot .
-after_success:
-- docker push nickparisi/howiebot
+  - docker build -t nickparisi/howiebot .
+  - docker push nickparisi/howiebot
 deploy:
   provider: script
-  skip-cleanup: true
   script: aws ecs update-service --cluster HowieCluster --service HowieBot-service --force-new-deployment
