@@ -13,6 +13,7 @@ env:
 before_install:
   - pip install awscli
   - export PATH=$PATH:$HOME/.local/bin
+  - aws configure set region us-east-1
   - docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASS
 install:
   - docker build -t nickparisi/howiebot .
