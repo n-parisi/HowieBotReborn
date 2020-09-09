@@ -10,11 +10,12 @@ The goal was to create something easily configurable and extensible. Just provid
 ### Commands
 
 HowieBot responds to the following commands in chat:
-- `!help` - Prints a help message
-- `!pic` - Display a random picture
-- `!sounds`- Prints list of all sound clips
+- `!help` - Prints a help message.
+- `!pic` - Display a random picture.
+- `!sounds`- Prints list of all sound clips.
 - `!play <clip>` - Play the specified clip. If none provided, play a random one.
-
+- `!newclip <youtube-link> <start-time> <duration>` - Create a new sound clip from a youtube link.
+- `!savefile` - Save a new clip from an attached .wav or .mp3 file.
 ### Configuration
 
 `config.yml`
