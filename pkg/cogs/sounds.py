@@ -67,6 +67,23 @@ class Sounds(commands.Cog):
             else:
                 await ctx.send("Clip with that name already exists.")
 
+    @commands.command()
+    async def savefile(self, ctx):
+        if is_admin_request(ctx) and len(ctx.message.attachments) > 0:
+            attachment = ctx.message.attachments[0]
+            file_name = attachment.filename
+            file_extension = file_name[file_name.index("."):]
+
+            if file_name[:file_name.index(".")] in get_clips():
+                await ctx.send('Clip with that name already exists.')
+            elif (file_extension != '.wav') and (file_extension != '.mp3'):
+                await ctx.send('Invalid file, must be .wav or .mp3.')
+            else:
+                print(f"Saving attachment...{file_name}")
+                await attachment.save(RESOURCE_PATH+file_name)
+                aws.save_resource(cfg['bucket_name'], RESOURCE_PATH+file_name)
+                await ctx.send('File saved!')
+
 
 async def play_clip(channel, sound_file):
     voice_client = await channel.connect()
