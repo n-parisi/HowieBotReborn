@@ -13,14 +13,23 @@ bot.add_cog(Sounds(bot))
 bot.add_cog(Pics(bot))
 
 
-# add help command
+# TODO: Use built in help command instead of this
 @bot.command()
-async def help(ctx):
-    await ctx.send('```Available Commands: \n'
-                   '   !pic                 Share a random Howie Pic\n'
-                   '   !play                Play a random sound clip\n'
-                   '   !sounds              List all clips\n'
-                   '   !play <clip name>    Play a specific sound clip```')
+async def help(ctx, subhelp=None):
+    if subhelp == 'newclip':
+        await ctx.send('```!newclip youtube.com/abc 00:05:30.00 10\n'
+                       '    Creates a new clip that begins at the 5 min 30 sec mark in the video, and runs for 10 seconds\n'
+                       '!play test\n'
+                       '    Listen to the created clip.\n'
+                       '!saveclip testclip\n'
+                       '    Save it as a new clip called testclip.```')
+    else:
+        await ctx.send('```Available Commands: \n'
+                       '   !pic                 Share a random Howie Pic\n'
+                       '   !play                Play a random sound clip\n'
+                       '   !clips               List all clips\n'
+                       '   !play <clip name>    Play a specific sound clip\n'
+                       '   !newclip             Create a new clip. "!help newclip" for more```')
 
 
 @bot.command()
