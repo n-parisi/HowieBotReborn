@@ -53,8 +53,14 @@ class Sounds(commands.Cog):
         elif not 0 < duration <= 30:
             await ctx.send('Duration must be a number of seconds between 0 and 30.')
         else:
+            await ctx.send('Creating clip...')
             yt.create_clip(yt_link, start, duration_str, 'resources/tmp.mp3')
-            await ctx.send('New clip created. `!play test` to hear it, `!saveclip clip_name` to save it.')
+            await ctx.send('New clip created. `!play test` to hear it again, `!saveclip clip_name` to save it.')
+
+            # Could be refactored
+            voice = ctx.message.author.voice
+            if voice is not None:
+                await play_clip(voice.channel, 'resources/tmp.mp3')
 
     @commands.command()
     async def saveclip(self, ctx, clip_name):
@@ -69,6 +75,8 @@ class Sounds(commands.Cog):
 
     @commands.command()
     async def savefile(self, ctx):
+        if not cfg['allow_savefile']:
+            await ctx.send('Save file command is disabled.')
         if is_admin_request(ctx) and len(ctx.message.attachments) > 0:
             attachment = ctx.message.attachments[0]
             file_name = attachment.filename
@@ -80,8 +88,8 @@ class Sounds(commands.Cog):
                 await ctx.send('Invalid file, must be .wav or .mp3.')
             else:
                 print(f"Saving attachment...{file_name}")
-                await attachment.save(RESOURCE_PATH+file_name)
-                aws.save_resource(cfg['bucket_name'], RESOURCE_PATH+file_name)
+                await attachment.save(RESOURCE_PATH + file_name)
+                aws.save_resource(cfg['bucket_name'], RESOURCE_PATH + file_name)
                 await ctx.send('File saved!')
 
 
