@@ -30,7 +30,7 @@ class Sounds(commands.Cog):
             channel = user.voice.channel
             if sound == 'random':
                 random_sound = random.choice(all_sounds)
-                await play_clip(channel, get_clip_file(celinoandbarnes))
+                await play_clip(channel, get_clip_file(random_sound))
             elif sound == 'test':
                 await play_clip(channel, 'resources/tmp.mp3')
             elif sound in all_sounds:
