@@ -36,16 +36,6 @@ class Sounds(commands.Cog):
             elif sound in all_sounds:
                 await play_clip(channel, get_clip_file(sound))
 
-    @commands.comand()
-    async def guess(self, ctx, user_guess):
-        user = ctx.message.author
-        # only play sound if user is in a voice channel
-        if user.voice is not None:
-            all_sounds = get_clips()
-            channel = user.voice.channel
-            random_sound = random.choice(all_sounds)
-            await play_clip(channel, get_clip_file(random_sound))
-                             
     @commands.command()
     async def clips(self, ctx):
         result_str = ", ".join(sorted(get_clips()))
@@ -82,7 +72,7 @@ class Sounds(commands.Cog):
                 await ctx.send("Clip created successfully!")
             else:
                 await ctx.send("Clip with that name already exists.")
-                
+
     @commands.command()
     async def savefile(self, ctx):
         if not cfg['allow_savefile']:
