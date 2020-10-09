@@ -23,7 +23,7 @@ class Pics(commands.Cog):
 
     @commands.command()
     async def picBurst(self, ctx, count):
-    	x = count
+    	x = 0
     	while x < count: 
         	file_name = random.choice(os.listdir(RESOURCE_PATH))
         	await ctx.send(file=discord.File(RESOURCE_PATH + file_name))
