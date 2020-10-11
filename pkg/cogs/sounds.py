@@ -111,13 +111,11 @@ def get_clip_file(sound):
         if sound in filename:
             return RESOURCE_PATH + filename
 
-
 def is_timestamp(timestamp):
     if re.match(r'\d{2}:\d{2}:\d{2}\.\d{2}', timestamp) is None:
         return False
     else:
         return True
-
 
 def to_float(s):
     try:
