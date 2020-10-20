@@ -45,7 +45,7 @@ class Sounds(commands.Cog):
     async def newclip(self, ctx, yt_link, start, duration_str):
         duration = to_float(duration_str)
         if not is_admin_request(ctx):
-            await ctx.send('Clip creation only available to admins.')
+            await ctx.send('Clip creation only available to Admins.')
         elif 'youtube.com' not in yt_link:
             await ctx.send('Clip must be a link to youtube.com.')
         elif not is_timestamp(start):
@@ -122,3 +122,4 @@ def to_float(s):
         return float(s)
     except ValueError:
         return -1
+
