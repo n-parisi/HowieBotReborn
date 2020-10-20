@@ -122,3 +122,4 @@ def to_float(s):
         return float(s)
     except ValueError:
         return -1
+        
