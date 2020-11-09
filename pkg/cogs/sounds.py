@@ -38,8 +38,16 @@ class Sounds(commands.Cog):
 
     @commands.command()
     async def clips(self, ctx):
-        result_str = ", ".join(sorted(get_clips()))
-        await ctx.send(result_str[:-2])
+        clip_list_msg = ''
+        for clip_name in sorted(get_clips()):
+            clip_list_msg += clip_name
+            # Break up message every 1500 chars (Discord limit is 2000 per message)
+            if len(clip_list_msg) > 1500:
+                await ctx.send(clip_list_msg)
+                # Start building a new message
+                clip_list_msg = ''
+            else:
+                clip_list_msg += ', '
 
     @commands.command()
     async def newclip(self, ctx, yt_link, start, duration_str):
