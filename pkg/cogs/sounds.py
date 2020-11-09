@@ -48,6 +48,7 @@ class Sounds(commands.Cog):
                 clip_list_msg = ''
             else:
                 clip_list_msg += ', '
+        await ctx.send(clip_list_msg)
 
     @commands.command()
     async def newclip(self, ctx, yt_link, start, duration_str):
