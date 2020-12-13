@@ -37,6 +37,27 @@ class Sounds(commands.Cog):
                 await play_clip(channel, get_clip_file(sound))
 
     @commands.command()
+    async def delay(self, ctx, *, arg):
+        user = ctx.message.author
+        # only play sound if user is in a voice channel
+        if user.voice is not None:
+            all_sounds = get_clips()
+            channel = user.voice.channel
+
+            args = arg.split(',')
+            # last arg needs to be a number
+            delay = to_int(args[-1])
+            if delay < 0 or delay > 10:
+                await ctx.send('Last parameter needs to be a number in seconds, less than 10')
+            # if delay is the only parameter, play 3 random sounds
+            elif len(args) == 1:
+                sounds = [random.choice(all_sounds) for i in range(3)]
+                await play_clips_delay(channel, sounds, delay)
+            else:
+                sounds = args[0:-1]
+                await play_clips_delay(channel, sounds, delay)
+
+    @commands.command()
     async def clips(self, ctx):
         clip_list_msg = ''
         for clip_name in sorted(get_clips()):
@@ -110,6 +131,12 @@ async def play_clip(channel, sound_file):
         await asyncio.sleep(1)
     await voice_client.disconnect()
 
+async def play_clips_delay(channel, sounds, delay):
+    for i in range(len(sounds)):
+        sound = sounds[i].strip()
+        await play_clip(channel, get_clip_file(sound))
+        if not i == len(sounds) - 1:
+            await asyncio.sleep(delay)
 
 def get_clips():
     return [filename[:filename.index(".")] for filename in os.listdir(RESOURCE_PATH)]
@@ -131,5 +158,11 @@ def is_timestamp(timestamp):
 def to_float(s):
     try:
         return float(s)
+    except ValueError:
+        return -1
+
+def to_int(s):
+    try:
+        return int(s)
     except ValueError:
         return -1
