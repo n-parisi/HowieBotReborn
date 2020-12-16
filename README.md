@@ -16,6 +16,8 @@ HowieBot responds to the following commands in chat:
 - `!play <clip>` - Play the specified clip. If none provided, play a random one.
 - `!newclip <youtube-link> <start-time> <duration>` - Create a new sound clip from a youtube link.
 - `!savefile` - Save a new clip from an attached .wav or .mp3 file.
+- `!playlist <clip1> <clipN> <delaySec>` - Play a list of clips in sequence, with a delay between each.
+- `!delay <clip1> <clipN> <delayMs>` - Create a new clip by playing clips in sequence, each clip starting after a delay in ms.
 ### Configuration
 
 `config.yml`

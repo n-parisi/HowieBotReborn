@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from pkg.utils.discord_utils import is_admin_request
 import pkg.utils.aws_utils as aws
-import pkg.utils.yt_utils as yt
+from pkg.utils.clip_utils import create_clip, splice_clips
 from pkg.utils.config import cfg
 
 RESOURCE_PATH = 'resources/sounds/'
@@ -37,7 +37,7 @@ class Sounds(commands.Cog):
                 await play_clip(channel, get_clip_file(sound))
 
     @commands.command()
-    async def delay(self, ctx, *, arg):
+    async def playlist(self, ctx, *, arg):
         user = ctx.message.author
         # only play sound if user is in a voice channel
         if user.voice is not None:
@@ -56,6 +56,42 @@ class Sounds(commands.Cog):
             else:
                 sounds = args[0:-1]
                 await play_clips_delay(channel, sounds, delay)
+
+    @commands.command()
+    async def delay(self, ctx, *, arg):
+        user = ctx.message.author
+        # only play sound if user is in a voice channel
+        if user.voice is not None:
+            all_sounds = get_clips()
+            channel = user.voice.channel
+
+            args = arg.split(',')
+            # last arg needs to be a number
+            delay = to_int(args[-1])
+            sounds = None
+            if delay < 0 or delay > 5000:
+                await ctx.send('Last parameter needs to be a number in milliseconds, less than 5000')
+            # if delay is the only parameter, splice 5 random sounds
+            elif len(args) == 1:
+                sounds = [get_clip_file(random.choice(all_sounds)) for i in range(5)]
+            else:
+                # Validate all provided sounds
+                user_sounds = args[0:-1]
+                valid = True
+                for user_sound in user_sounds:
+                    user_sound = user_sound.strip()
+                    if user_sound not in all_sounds:
+                        valid = False
+                if not valid:
+                    await ctx.send('Invalid list of clips provided.')
+                else:
+                    sounds = [get_clip_file(sound.strip()) for sound in user_sounds]
+
+            if not sounds is None:
+                await ctx.send('Splicing a new audio clip...')
+                splice_clips(sounds, delay)
+                await ctx.send('New clip created. `!play test` to hear it again, `!saveclip clip_name` to save it.')
+                await play_clip(channel, 'resources/tmp.mp3')            
 
     @commands.command()
     async def clips(self, ctx):
@@ -84,7 +120,7 @@ class Sounds(commands.Cog):
             await ctx.send('Duration must be a number of seconds between 0 and 30.')
         else:
             await ctx.send('Creating clip...')
-            yt.create_clip(yt_link, start, duration_str, 'resources/tmp.mp3')
+            create_clip(yt_link, start, duration_str, 'resources/tmp.mp3')
             await ctx.send('New clip created. `!play test` to hear it again, `!saveclip clip_name` to save it.')
 
             # Could be refactored
