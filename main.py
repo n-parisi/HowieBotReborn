@@ -55,6 +55,11 @@ async def build(ctx):
         build_str = "local-0"
     await ctx.send(build_str)
 
+@bot.command()
+async def servers(ctx):
+  servers = list(bot.guilds)
+  await ctx.send(f"Connected on {str(len(servers))} servers:")
+  await ctx.send('\n'.join(guild.name for guild in guilds))
 
 # start bot
 print("Starting bot!")
