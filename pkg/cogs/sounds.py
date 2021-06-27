@@ -180,7 +180,7 @@ def get_clips():
 
 def get_clip_file(sound):
     for filename in os.listdir(RESOURCE_PATH):
-        if sound in filename:
+        if sound == filename[0:-4]:
             return RESOURCE_PATH + filename
 
 
