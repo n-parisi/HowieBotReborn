@@ -48,7 +48,7 @@ async def help(ctx, subhelp=None):
 async def build(ctx):
     if 'BUILD_ID' in os.environ:
         build_id = os.environ['BUILD_ID']
-        build_str = f'{build_id}'
+        build_str = f'{build_id} - workflow test!'
     else:
         build_str = "undefined"
     await ctx.send(build_str)
