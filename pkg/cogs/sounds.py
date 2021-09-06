@@ -75,8 +75,10 @@ class Sounds(commands.Cog):
             elif len(args) == 1:
                 sounds = [get_clip_file(random.choice(all_sounds)) for i in range(5)]
             else:
-                # Validate all provided sounds
                 user_sounds = args[0:-1]
+                #replace any use of the word 'random' with a random clip
+                user_sounds = map(lambda sound: random.choice(all_sounds) if sound == 'random' else sound, user_sounds) 
+                # Validate all provided sounds
                 valid = True
                 for user_sound in user_sounds:
                     user_sound = user_sound.strip()
