@@ -96,9 +96,12 @@ class Sounds(commands.Cog):
                 await play_clip(channel, 'resources/tmp.mp3')            
 
     @commands.command()
-    async def clips(self, ctx):
+    async def clips(self, ctx, search_term=None):
         clip_list_msg = ''
-        for clip_name in sorted(get_clips()):
+        clips = get_clips()
+        if search_term is not None:
+            clips = filter(lambda clip: search_term.lower() in clip.lower(), clips)
+        for clip_name in sorted(clips):
             clip_list_msg += clip_name
             # Break up message every 1500 chars (Discord limit is 2000 per message)
             if len(clip_list_msg) > 1500:
@@ -107,7 +110,7 @@ class Sounds(commands.Cog):
                 clip_list_msg = ''
             else:
                 clip_list_msg += ', '
-        await ctx.send(clip_list_msg)
+        await ctx.send(clip_list_msg[:-2])
 
     @commands.command()
     async def newclip(self, ctx, yt_link, start, duration_str):
