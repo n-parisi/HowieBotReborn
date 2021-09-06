@@ -34,15 +34,24 @@ locally at `resources/sounds` and `resources/pics`.
 
 ### Running
 
-All required dependencies are provided in the [gorialis/discord.py](https://hub.docker.com/r/gorialis/discord.py/) image. This is the 
-simplest way to run the bot.
+Many of the required dependencies are provided in the [gorialis/discord.py](https://hub.docker.com/r/gorialis/discord.py/) image.
+The simplest way to run the bot is to create a base image with the included Dockerfile:
+
+```
+docker build -t howiebot .
+```
+
+Then use this image to run the bot (see `runLocal.sh`):
 
 ```
 docker run -it --rm \
-   -e DISCORD_BOT_TOKEN=<your token> \
-   -v "$PWD":/home/app \
-   gorialis/discord.py /bin/bash -c "pip install -r requirements.txt; python -u main.py"
+   -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
+   -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+   -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+   -e BUILD_ID=local-docker \
+   -v "$PWD":/app \
+   howiebot
 ```
 
-Please note you will need to configure AWS credentials if using AWS resources. For running locally, you can add 
-`-e AWS_ACCESS_KEY_ID= -e AWS_SECRET_ACCESS_KEY=` with the appropriate values provided to the `docker run` command.
+Please note you will need to configure AWS credentials if using AWS resources. If not, you can remove the AWS
+environment variables. 
