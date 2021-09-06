@@ -7,7 +7,7 @@ AWS S3 bucket. This bot is used in a personal Discord server and hosted on AWS. 
 
 The goal was to create something easily configurable and extensible. Just provide a bot token and resource files! 
 
-### Commands
+### Commands 
 
 HowieBot responds to the following commands in chat:
 - `!help` - Prints a help message.
