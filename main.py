@@ -48,18 +48,16 @@ async def help(ctx, subhelp=None):
 async def build(ctx):
     if 'BUILD_ID' in os.environ:
         build_id = os.environ['BUILD_ID']
-        build_num = os.environ['BUILD_NUM']
-
-        build_str = f'{build_id}---build:{build_num}'
+        build_str = f'{build_id}'
     else:
-        build_str = "local-0"
+        build_str = "undefined"
     await ctx.send(build_str)
 
 @bot.command()
 async def servers(ctx):
   servers = list(bot.guilds)
   await ctx.send(f"Connected on {str(len(servers))} servers:")
-  await ctx.send('\n'.join(guild.name for guild in guilds))
+  await ctx.send('\n'.join(guild.name for guild in servers))
 
 # start bot
 print("Starting bot!")
