@@ -2,6 +2,7 @@ import asyncio
 import os
 import random
 import re
+import shutil
 
 import discord
 from discord.ext import commands
@@ -77,7 +78,8 @@ class Sounds(commands.Cog):
             else:
                 user_sounds = args[0:-1]
                 # replace any use of the word 'random' with a random clip
-                # user_sounds = map(lambda sound: random.choice(all_sounds) if sound == 'random' else sound, user_sounds)
+                user_sounds = list(map(lambda sound: random.choice(all_sounds) if sound.strip() == 'random' else sound,
+                                       user_sounds))
                 # Validate all provided sounds
                 valid = True
                 for user_sound in user_sounds:
@@ -163,6 +165,15 @@ class Sounds(commands.Cog):
                 aws.save_resource(cfg['bucket_name'], RESOURCE_PATH + file_name)
                 await ctx.send('File saved!')
 
+    @commands.command()
+    async def resync(self, ctx):
+        if cfg['use_aws_resources']:
+            await ctx.send("Resyncing all clip files...")
+            if os.path.exists(RESOURCE_PATH):
+                shutil.rmtree(RESOURCE_PATH)
+            aws.sync_resources(cfg['bucket_name'], cfg['sounds_prefix'], RESOURCE_PATH)
+            await ctx.send("Clips resycned!")
+
 
 async def play_clip(channel, sound_file):
     voice_client = await channel.connect()
@@ -172,12 +183,14 @@ async def play_clip(channel, sound_file):
         await asyncio.sleep(1)
     await voice_client.disconnect()
 
+
 async def play_clips_delay(channel, sounds, delay):
     for i in range(len(sounds)):
         sound = sounds[i].strip()
         await play_clip(channel, get_clip_file(sound))
         if not i == len(sounds) - 1:
             await asyncio.sleep(delay)
+
 
 def get_clips():
     return [filename[:filename.index(".")] for filename in os.listdir(RESOURCE_PATH)]
@@ -201,6 +214,7 @@ def to_float(s):
         return float(s)
     except ValueError:
         return -1
+
 
 def to_int(s):
     try:
