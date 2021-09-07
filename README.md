@@ -12,12 +12,13 @@ The goal was to create something easily configurable and extensible. Just provid
 HowieBot responds to the following commands in chat:
 - `!help` - Prints a help message.
 - `!pic` - Display a random picture.
-- `!sounds`- Prints list of all sound clips.
+- `!clips <search>`- Prints list of all sound clips, or just the ones that contain the optional search term.
 - `!play <clip>` - Play the specified clip. If none provided, play a random one.
 - `!newclip <youtube-link> <start-time> <duration>` - Create a new sound clip from a youtube link.
 - `!savefile` - Save a new clip from an attached .wav or .mp3 file.
 - `!playlist <clip1> <clipN> <delaySec>` - Play a list of clips in sequence, with a delay between each.
 - `!delay <clip1> <clipN> <delayMs>` - Create a new clip by playing clips in sequence, each clip starting after a delay in ms.
+- `!resync` - If using AWS resources, deletes all cips and redownloads from source.
 ### Configuration
 
 `config.yml`
@@ -55,3 +56,18 @@ docker run -it --rm \
 
 Please note you will need to configure AWS credentials if using AWS resources. If not, you can remove the AWS
 environment variables. 
+
+Putting it all together, you can run the bot with docker-compose like this:
+
+```
+  howiebot:
+    build: path/to/bot/repository
+    container_name: howiebot
+    volumes:
+      - path/to/bot/repository:/app
+    environment:
+      - DISCORD_BOT_TOKEN=
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - BUILD_ID=remote-docker
+```
