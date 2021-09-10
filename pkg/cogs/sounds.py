@@ -9,7 +9,7 @@ from discord.ext import commands
 
 from pkg.utils.discord_utils import is_admin_request
 import pkg.utils.aws_utils as aws
-from pkg.utils.clip_utils import create_clip, splice_clips
+from pkg.utils.clip_utils import create_clip, mix_clips
 from pkg.utils.config import cfg
 
 RESOURCE_PATH = 'resources/sounds/'
@@ -63,39 +63,16 @@ class Sounds(commands.Cog):
         user = ctx.message.author
         # only play sound if user is in a voice channel
         if user.voice is not None:
-            all_sounds = get_clips()
-            channel = user.voice.channel
-
             args = arg.split(',')
-            # last arg needs to be a number
-            delay = to_int(args[-1])
-            sounds = None
-            if delay < 0 or delay > 5000:
-                await ctx.send('Last parameter needs to be a number in milliseconds, less than 5000')
-            # if delay is the only parameter, splice 5 random sounds
-            elif len(args) == 1:
-                sounds = [get_clip_file(random.choice(all_sounds)) for i in range(5)]
+            # if last arg is a number, and the rest are sounds, do simple delay
+            if to_int(args[-1]) > -1 and all(to_int(arg) == -1 for arg in args[:-1]):
+                await simple_delay(ctx, args)
+            # if args are pairs of sound and delays, do advanced delay
+            elif all(to_int(args[n]) == -1 or args[-1].strip() in get_clips() and to_int(args[n+1]) > -1 for n in range(len(args) - 1, 2)) \
+                    and to_int(args[-1]) == -1 or args[-1].strip() in get_clips():
+                await advanced_delay(ctx, args)
             else:
-                user_sounds = args[0:-1]
-                # replace any use of the word 'random' with a random clip
-                user_sounds = list(map(lambda sound: random.choice(all_sounds) if sound.strip() == 'random' else sound,
-                                       user_sounds))
-                # Validate all provided sounds
-                valid = True
-                for user_sound in user_sounds:
-                    user_sound = user_sound.strip()
-                    if user_sound not in all_sounds:
-                        valid = False
-                if not valid:
-                    await ctx.send('Invalid list of clips provided.')
-                else:
-                    sounds = [get_clip_file(sound.strip()) for sound in user_sounds]
-
-            if not sounds is None:
-                await ctx.send('Splicing a new audio clip...')
-                splice_clips(sounds, delay)
-                await ctx.send('New clip created. `!play test` to hear it again, `!saveclip clip_name` to save it.')
-                await play_clip(channel, 'resources/tmp.mp3')            
+                await ctx.send("Bad inputs.")
 
     @commands.command()
     async def clips(self, ctx, search_term=None):
@@ -192,6 +169,35 @@ async def play_clips_delay(channel, sounds, delay):
             await asyncio.sleep(delay)
 
 
+async def simple_delay(ctx, args):
+    # Parse delay
+    delay = to_int(args[-1])
+
+    # Construct list of tuples (sound, delay)
+    # if delay is the only parameter, mix 5 random sounds
+    if len(args) == 1:
+        clip_metadata = [(random.choice(get_clips()), delay if i > 0 else 0) for i in range(5)]
+    else:
+        clip_metadata = [(randomize_if_random(args[i]), delay if i > 0 else 0) for i in range(len(args) - 1)]
+    valid, clip_metadata = validate_clip_metadata(clip_metadata)
+    if valid:
+        await mix_and_play(ctx, clip_metadata)
+    else:
+        await ctx.send("Either clips are invalid or delay is greater than 7500.")
+
+
+async def advanced_delay(ctx, args):
+    # Construct list of tuples (sound, delay)
+    # First is always 0 delay
+    clip_metadata = [(randomize_if_random(args[0]), 0)]
+    clip_metadata.extend([(randomize_if_random(args[n+1]), to_int(args[n])) for n in range(1, len(args), 2)])
+    valid, clip_metadata = validate_clip_metadata(clip_metadata)
+    if valid:
+        await mix_and_play(ctx, clip_metadata)
+    else:
+        await ctx.send("Either clips are invalid or delay is greater than 7500.")
+
+
 def get_clips():
     return [filename[:filename.index(".")] for filename in os.listdir(RESOURCE_PATH)]
 
@@ -200,6 +206,29 @@ def get_clip_file(sound):
     for filename in os.listdir(RESOURCE_PATH):
         if sound == filename[0:-4]:
             return RESOURCE_PATH + filename
+
+
+def validate_clip_metadata(clip_metadata):
+    valid = all(clip in get_clips() and delay < 7500 for clip, delay in clip_metadata)
+    if not valid:
+        return False, None
+    else:
+        # replace names with file paths
+        clip_metadata = [(get_clip_file(clip), delay) for clip, delay in clip_metadata]
+        # replace delay with position
+        clip_metadata = [(path, sum([delay for _, delay in clip_metadata[:i + 1]]))
+                         for i, (path, delay) in enumerate(clip_metadata)]
+        return True, clip_metadata
+
+
+async def mix_and_play(ctx, clip_metadata):
+    mix_clips(clip_metadata)
+    await ctx.send('New clip created. `!play test` to hear it again, `!saveclip clip_name` to save it.')
+    await play_clip(ctx.message.author.voice.channel, 'resources/tmp.mp3')
+
+
+def randomize_if_random(sound):
+    return random.choice(get_clips()) if sound.strip() == 'random' else sound.strip()
 
 
 def is_timestamp(timestamp):
