@@ -26,3 +26,8 @@ def mix_clips(clips_metadata):
 
     # Save the final result
     final_sound.export('resources/tmp.mp3', format='mp3')
+
+
+def clip_length(path):
+    clip = AudioSegment.from_wav(path) if '.wav' in path else AudioSegment.from_mp3(path)
+    return len(clip)

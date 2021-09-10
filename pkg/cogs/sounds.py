@@ -9,7 +9,7 @@ from discord.ext import commands
 
 from pkg.utils.discord_utils import is_admin_request
 import pkg.utils.aws_utils as aws
-from pkg.utils.clip_utils import create_clip, mix_clips
+from pkg.utils.clip_utils import create_clip, mix_clips, clip_length
 from pkg.utils.config import cfg
 
 RESOURCE_PATH = 'resources/sounds/'
@@ -36,6 +36,8 @@ class Sounds(commands.Cog):
                 await play_clip(channel, 'resources/tmp.mp3')
             elif sound in all_sounds:
                 await play_clip(channel, get_clip_file(sound))
+            else:
+                await ctx.send('Not a valid clip.')
 
     @commands.command()
     async def playlist(self, ctx, *, arg):
@@ -113,15 +115,15 @@ class Sounds(commands.Cog):
                 await play_clip(voice.channel, 'resources/tmp.mp3')
 
     @commands.command()
-    async def saveclip(self, ctx, clip_name):
+    async def saveclip(self, ctx, clip_name, force=None):
         if is_admin_request(ctx):
-            if clip_name not in get_clips():
+            if clip_name not in get_clips() or force == "force":
                 local_file = f'resources/sounds/{clip_name}.mp3'
                 os.rename('resources/tmp.mp3', local_file)
                 aws.save_resource(cfg['bucket_name'], local_file)
                 await ctx.send("Clip created successfully!")
             else:
-                await ctx.send("Clip with that name already exists.")
+                await ctx.send("Clip with that name already exists. You can overwrite with `!savelip clip_name force`")
 
     @commands.command()
     async def savefile(self, ctx):
@@ -150,6 +152,12 @@ class Sounds(commands.Cog):
                 shutil.rmtree(RESOURCE_PATH)
             aws.sync_resources(cfg['bucket_name'], cfg['sounds_prefix'], RESOURCE_PATH)
             await ctx.send("Clips resycned!")
+
+    @commands.command()
+    async def length(self, ctx, clip):
+        cliplen = clip_length(get_clip_file(clip))
+        await ctx.send(f"{cliplen}ms")
+
 
 
 async def play_clip(channel, sound_file):
@@ -183,7 +191,7 @@ async def simple_delay(ctx, args):
     if valid:
         await mix_and_play(ctx, clip_metadata)
     else:
-        await ctx.send("Either clips are invalid or delay is greater than 7500.")
+        await ctx.send("Either clips are invalid or delay is greater than 30000.")
 
 
 async def advanced_delay(ctx, args):
@@ -195,7 +203,7 @@ async def advanced_delay(ctx, args):
     if valid:
         await mix_and_play(ctx, clip_metadata)
     else:
-        await ctx.send("Either clips are invalid or delay is greater than 7500.")
+        await ctx.send("Either clips are invalid or delay is greater than 30000.")
 
 
 def get_clips():
@@ -209,7 +217,7 @@ def get_clip_file(sound):
 
 
 def validate_clip_metadata(clip_metadata):
-    valid = all(clip in get_clips() and delay < 7500 for clip, delay in clip_metadata)
+    valid = all(clip in get_clips() and delay <= 30000 for clip, delay in clip_metadata)
     if not valid:
         return False, None
     else:
