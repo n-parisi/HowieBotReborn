@@ -47,7 +47,7 @@ def new_wager(disp_name, account, amount, clip, count):
     db.insert({'type': 'wager',
                'wager_id': str(uuid.uuid4()),
                'user_id': account['id'],
-               'disp_name' : disp_name,
+               'disp_name': disp_name,
                'clip': clip,
                'amount': amount,
                'count': count,
