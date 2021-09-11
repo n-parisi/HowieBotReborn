@@ -48,7 +48,7 @@ class Wagers(commands.Cog):
 
         results_str = ""
         for result in results:
-            pay_out = result['amount'] * len(get_clips()) / result['start_count']
+            pay_out = format(result['amount'] * len(get_clips()) / result['start_count'], '.2f')
             results_str += f"{result['disp_name']} --- {result['clip']} --- Bet: ${result['amount']} --- Payout: ${pay_out}" \
                            f"--- {result['count']} / {result['start_count']} attempts left\n"
         await ctx.send(results_str if len(results_str) > 0 else "None")
