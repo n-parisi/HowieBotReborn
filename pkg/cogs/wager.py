@@ -19,12 +19,11 @@ class Wagers(commands.Cog):
             await ctx.send(f"New HowieBucks account created for user {user.display_name}.")
         # perform validations
         clip = clip.strip()
-        if amount[0] != '$':
-            await ctx.send("Wager amount should start with '$'")
+        if amount[0] != '$' or to_int(amount[1:]) < 0:
+            await ctx.send("Wager should be amount starting with '$'")
         elif to_int(amount[1:]) > howie_account['bucks']:
             await ctx.send("You don't have enough HowieBucks to place this wager")
         elif clip not in get_clips():
-            print(clip)
             await ctx.send("Clip does not exist.")
         elif to_int(count) == -1:
             await ctx.send("Last value must be number")
