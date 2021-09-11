@@ -17,7 +17,7 @@ def new_macro(macro_name, macro):
 
 
 def get_macro(macro_name):
-    return db.search(where('type') == 'macro')[0]
+    return db.search(where('type') == 'macro' and where('name') == macro_name)[0]
 
 
 def get_accounts():
