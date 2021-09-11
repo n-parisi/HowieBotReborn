@@ -31,7 +31,7 @@ class Sounds(commands.Cog):
             all_sounds = get_clips()
             channel = user.voice.channel
             if sound == 'random':
-                random_sound = 'cum'
+                random_sound = random.choice(all_sounds)
                 winners = db.check_wagers(random_sound, len(all_sounds))
                 if len(winners) > 0:
                     for winner in winners:
