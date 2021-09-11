@@ -14,13 +14,18 @@ def check_wagers(clip, total_clip_count):
     db.remove(is_wager and where('count') == 0)
     # get the hits
     results = db.search(is_wager and where('clip') == clip)
+    winners = []
     for result in results:
         # pay out
-        print(result['amount'] * total_clip_count / result['start_count'])
-        db.update(add('bucks', result['amount'] * total_clip_count / result['start_count']),
+        pay_out = result['amount'] * total_clip_count / result['start_count']
+        db.update(add('bucks', pay_out),
                   where('type') == 'account' and where('id') == result['user_id'])
         # delete wager record
         db.remove(is_wager and where('wager_id') == result['wager_id'])
+        winners.append((result['disp_name'], pay_out, result['clip']))
+
+    print(winners)
+    return winners
 
 
 def new_account(discord_id, name):
