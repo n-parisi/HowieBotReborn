@@ -74,5 +74,8 @@ def get_account(discord_id):
     return result[0] if len(result) > 0 else None
 
 
-def get_wagers():
-    return db.search(where('type') == 'wager')
+def get_wagers(user):
+    if user is not None:
+        return db.search(where('type') == 'wager' and where('disp_name') == user)
+    else:
+        return db.search(where('type') == 'wager')

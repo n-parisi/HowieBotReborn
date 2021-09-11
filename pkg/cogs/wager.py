@@ -42,8 +42,8 @@ class Wagers(commands.Cog):
         await ctx.send(results_str if len(results_str) > 0 else "None")
 
     @commands.command()
-    async def wagers(self, ctx):
-        results = db_utils.get_wagers()
+    async def wagers(self, ctx, user=None):
+        results = db_utils.get_wagers(user)
         results.sort(key=lambda x: x['disp_name'])
 
         results_str = ""
@@ -51,4 +51,6 @@ class Wagers(commands.Cog):
             pay_out = format(result['amount'] * len(get_clips()) / result['start_count'], '.2f')
             results_str += f"{result['disp_name']} --- {result['clip']} --- Bet: ${result['amount']} --- Payout: ${pay_out}" \
                            f"--- {result['count']} / {result['start_count']} attempts left\n"
-        await ctx.send(results_str if len(results_str) > 0 else "None")
+            if len(results_str) > 1700:
+                await ctx.send(results_str if len(results_str) > 0 else "None")
+                results_str = ""
