@@ -1,7 +1,3 @@
-import os
-import random
-
-import discord
 from discord.ext import commands
 from pkg.cogs.sounds import get_clips, to_int
 import pkg.utils.db_utils as db_utils
@@ -12,7 +8,7 @@ class Wagers(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def bwager(self, ctx, *, arg):
+    async def wager(self, ctx, *, arg):
         args = arg.split(',')
         amount, clip, count = args[0], args[1], args[2]
         # get users account
@@ -37,7 +33,7 @@ class Wagers(commands.Cog):
             await ctx.send("Wager placed.")
 
     @commands.command()
-    async def bbucks(self, ctx):
+    async def bucks(self, ctx):
         results = db_utils.get_accounts()
         results.sort(key=lambda x: x['bucks'], reverse=True)
 
@@ -47,7 +43,7 @@ class Wagers(commands.Cog):
         await ctx.send(results_str if len(results_str) > 0 else "None")
 
     @commands.command()
-    async def bwagers(self, ctx):
+    async def wagers(self, ctx):
         results = db_utils.get_wagers()
 
         results_str = ""
