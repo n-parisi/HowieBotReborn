@@ -44,6 +44,7 @@ class Wagers(commands.Cog):
     @commands.command()
     async def wagers(self, ctx):
         results = db_utils.get_wagers()
+        results.sort(key=lambda x: x['disp_name'])
 
         results_str = ""
         for result in results:
