@@ -54,4 +54,4 @@ class Wagers(commands.Cog):
             if len(results_str) > 1700:
                 await ctx.send(results_str if len(results_str) > 0 else "None")
                 results_str = ""
-            await ctx.send(results_str if len(results_str) > 0 else "None")
+        await ctx.send(results_str if len(results_str) > 0 else "None")
