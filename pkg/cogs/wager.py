@@ -48,10 +48,15 @@ class Wagers(commands.Cog):
 
         results_str = ""
         for result in results:
-            pay_out = format(result['amount'] * len(get_clips()) / result['start_count'], '.2f')
+            pay_out = format(result['amount'] + result['amount'] * len(get_clips()) / result['start_count'], '.2f')
             results_str += f"{result['disp_name']} --- {result['clip']} --- Bet: ${result['amount']} --- Payout: ${pay_out}" \
                            f"--- {result['count']} / {result['start_count']} attempts left\n"
             if len(results_str) > 1700:
                 await ctx.send(results_str if len(results_str) > 0 else "None")
                 results_str = ""
         await ctx.send(results_str if len(results_str) > 0 else "None")
+
+    @commands.command()
+    async def freemoney(self, ctx, amt):
+        if ctx.message.author.id == 156927514130907136:
+            db_utils.add_bucks(to_int(amt))

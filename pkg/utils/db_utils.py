@@ -17,7 +17,7 @@ def check_wagers(clip, total_clip_count):
     winners = []
     for result in results:
         # pay out
-        pay_out = result['amount'] * total_clip_count / result['start_count']
+        pay_out = result['amount'] + result['amount'] * total_clip_count / result['start_count']
         db.update(add('bucks', pay_out),
                   where('type') == 'account' and where('id') == result['user_id'])
         # delete wager record
@@ -26,6 +26,11 @@ def check_wagers(clip, total_clip_count):
 
     print(winners)
     return winners
+
+
+def add_bucks(amount):
+    db.update(add('bucks', amount),
+              where('type') == 'account')
 
 
 def new_account(discord_id, name):
