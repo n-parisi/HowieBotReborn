@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from pkg.cogs.pics import Pics
 from pkg.cogs.sounds import Sounds
+from pkg.cogs.wager import Wagers
 
 # create bot
 bot = commands.Bot(command_prefix='!', help_command=None)
@@ -11,6 +12,7 @@ bot = commands.Bot(command_prefix='!', help_command=None)
 # attach cogs
 bot.add_cog(Sounds(bot))
 bot.add_cog(Pics(bot))
+bot.add_cog(Wagers(bot))
 
 
 # TODO: Use built in help command instead of...this

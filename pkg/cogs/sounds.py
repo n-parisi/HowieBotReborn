@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from pkg.utils.discord_utils import is_admin_request
 import pkg.utils.aws_utils as aws
+import pkg.utils.db_utils as db
 from pkg.utils.clip_utils import create_clip, mix_clips, clip_length
 from pkg.utils.config import cfg
 
@@ -62,19 +63,7 @@ class Sounds(commands.Cog):
 
     @commands.command()
     async def delay(self, ctx, *, arg):
-        user = ctx.message.author
-        # only play sound if user is in a voice channel
-        if user.voice is not None:
-            args = arg.split(',')
-            # if last arg is a number, and the rest are sounds, do simple delay
-            if to_int(args[-1]) > -1 and all(to_int(arg) == -1 for arg in args[:-1]):
-                await simple_delay(ctx, args)
-            # if args are pairs of sound and delays, do advanced delay
-            elif all(to_int(args[n]) == -1 or args[-1].strip() in get_clips() and to_int(args[n+1]) > -1 for n in range(len(args) - 1, 2)) \
-                    and to_int(args[-1]) == -1 or args[-1].strip() in get_clips():
-                await advanced_delay(ctx, args)
-            else:
-                await ctx.send("Bad inputs.")
+        await delay(ctx, arg.split(','))
 
     @commands.command()
     async def clips(self, ctx, search_term=None):
@@ -158,6 +147,27 @@ class Sounds(commands.Cog):
         cliplen = clip_length(get_clip_file(clip))
         await ctx.send(f"{cliplen}ms")
 
+    @commands.command()
+    async def newmacro(self, ctx, *, arg):
+        args = arg.split(',')
+        # first arg is name of macro
+        macro_name = args[0]
+        # rest is macro
+        macro = args[1:]
+        db.new_macro(macro_name, macro)
+        await ctx.send('Macro saved!')
+
+    @commands.command()
+    async def showmacro(self, ctx, macro_name):
+        macro = db.get_macro(macro_name)
+        if macro is not None:
+            await ctx.send(', '.join(macro['macro']))
+
+    @commands.command()
+    async def macro(self, ctx, macro_name):
+        macro = db.get_macro(macro_name)
+        if macro is not None:
+            await delay(ctx, macro['macro'])
 
 
 async def play_clip(channel, sound_file):
@@ -175,6 +185,22 @@ async def play_clips_delay(channel, sounds, delay):
         await play_clip(channel, get_clip_file(sound))
         if not i == len(sounds) - 1:
             await asyncio.sleep(delay)
+
+
+async def delay(ctx, args):
+    user = ctx.message.author
+    # only play sound if user is in a voice channel
+    if user.voice is not None:
+        # if last arg is a number, and the rest are sounds, do simple delay
+        if to_int(args[-1]) > -1 and all(to_int(arg) == -1 for arg in args[:-1]):
+            await simple_delay(ctx, args)
+        # if args are pairs of sound and delays, do advanced delay
+        elif all(to_int(args[n]) == -1 or args[-1].strip() in get_clips() and to_int(args[n + 1]) > -1 for n in
+                 range(len(args) - 1, 2)) \
+                and to_int(args[-1]) == -1 or args[-1].strip() in get_clips():
+            await advanced_delay(ctx, args)
+        else:
+            await ctx.send("Bad inputs.")
 
 
 async def simple_delay(ctx, args):
