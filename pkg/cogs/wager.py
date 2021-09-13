@@ -57,6 +57,6 @@ class Wagers(commands.Cog):
         await ctx.send(results_str if len(results_str) > 0 else "None")
 
     @commands.command()
-    async def freemoney(self, ctx, amt):
+    async def freemoney(self, ctx, amt, user_id=None):
         if ctx.message.author.id == 156927514130907136:
-            db_utils.add_bucks(to_int(amt))
+            db_utils.add_bucks(to_int(amt), to_int(user_id))

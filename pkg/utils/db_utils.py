@@ -28,10 +28,13 @@ def check_wagers(clip, total_clip_count):
     return winners
 
 
-def add_bucks(amount):
-    db.update(add('bucks', amount),
-              where('type') == 'account')
-
+def add_bucks(amount, user_id=None):
+    if user_id is None:
+        db.update(add('bucks', amount),
+                  where('type') == 'account')
+    else:
+        db.update(add('bucks', amount),
+                  (where('type') == 'account') & (where('id') == user_id))
 
 def add_play_record(clip):
     # increment if exists, otherwise create new record
