@@ -1,19 +1,20 @@
 from tinydb import TinyDB, where
-from tinydb.operations import subtract, set, decrement, add
+from tinydb.operations import subtract, set, decrement, add, increment
 import uuid
 
 db = TinyDB('resources/db.json')
 
 
 def check_wagers(clip, total_clip_count):
+    add_play_record(clip)
     is_wager = where('type') == 'wager'
     # decrease count of miss
     db.update(decrement('count'),
-              is_wager and where('clip') != 'clip')
+              is_wager & (where('clip') != 'clip'))
     # delete the zeros
     db.remove(is_wager and where('count') == 0)
     # get the hits
-    results = db.search(is_wager and where('clip') == clip)
+    results = db.search(is_wager & (where('clip') == clip))
     winners = []
     for result in results:
         # pay out
@@ -24,13 +25,21 @@ def check_wagers(clip, total_clip_count):
         db.remove(is_wager and where('wager_id') == result['wager_id'])
         winners.append((result['disp_name'], pay_out, result['clip']))
 
-    print(winners)
     return winners
 
 
 def add_bucks(amount):
     db.update(add('bucks', amount),
               where('type') == 'account')
+
+
+def add_play_record(clip):
+    # increment if exists, otherwise create new record
+    if len(db.update(increment('plays'),
+                     where('type') == 'play' and where('clip') == clip)) == 0:
+        db.insert({'type': 'play',
+                   'clip': clip,
+                   'plays': 1})
 
 
 def new_account(discord_id, name):
@@ -84,3 +93,13 @@ def get_wagers(user):
         return db.search(where('type') == 'wager' and where('disp_name') == user)
     else:
         return db.search(where('type') == 'wager')
+
+
+def get_plays(clip=None):
+    if clip is not None:
+        return db.get(where('type') == 'play' and where('clip') == clip)
+    else:
+        results = db.search(where('type') == 'play')
+        # sort by plays
+        results.sort(key=lambda x: x['plays'], reverse=True)
+        return results

@@ -55,11 +55,18 @@ async def build(ctx):
         build_str = "undefined"
     await ctx.send(build_str)
 
+
 @bot.command()
 async def servers(ctx):
-  servers = list(bot.guilds)
-  await ctx.send(f"Connected on {str(len(servers))} servers:")
-  await ctx.send('\n'.join(guild.name for guild in servers))
+    servers = list(bot.guilds)
+    await ctx.send(f"Connected on {str(len(servers))} servers:")
+    await ctx.send('\n'.join(guild.name for guild in servers))
+
+
+@bot.command()
+async def unstuck(ctx):
+    for client in bot.voice_clients:
+        await client.disconnect(force=True)
 
 # start bot
 print("Starting bot!")

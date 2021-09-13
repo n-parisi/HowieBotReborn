@@ -35,7 +35,7 @@ class Sounds(commands.Cog):
                 winners = db.check_wagers(random_sound, len(all_sounds))
                 if len(winners) > 0:
                     for winner in winners:
-                        await ctx.send(f"{winner[0]} won ${winner[1]} on {winner[2]}")
+                        await ctx.send(f"{winner[0]} won ${format(winner[1], '.2f')} on {winner[2]}")
                 await play_clip(channel, get_clip_file(random_sound))
             elif sound == 'test':
                 await play_clip(channel, 'resources/tmp.mp3')
@@ -172,6 +172,25 @@ class Sounds(commands.Cog):
         macro = db.get_macro(macro_name)
         if macro is not None:
             await delay(ctx, macro['macro'])
+
+    @commands.command()
+    async def stats(self, ctx, arg=None):
+        if arg is None or to_int(arg) > -1:
+            results = db.get_plays()
+            results = results if arg is None else results[:to_int(arg)]
+            results_str = ""
+            for result in results:
+                results_str += f"{result['clip']} --- {result['plays']}\n"
+                if len(results_str) > 1700:
+                    await ctx.send(results_str)
+                    results_str = ""
+            await ctx.send(results_str if len(results_str) > 0 else "None")
+        elif arg in get_clips():
+            result = db.get_plays(arg)
+            if result is not None:
+                await ctx.send(f"{result['clip']} --- {result['plays']}")
+        else:
+            await ctx.send('Invalid.')
 
 
 async def play_clip(channel, sound_file):
