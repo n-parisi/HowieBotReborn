@@ -12,7 +12,7 @@ def check_wagers(clip, total_clip_count):
     db.update(decrement('count'),
               is_wager & (where('clip') != 'clip'))
     # delete the zeros
-    db.remove(is_wager and where('count') == 0)
+    db.remove(is_wager & (where('count') == 0))
     # get the hits
     results = db.search(is_wager & (where('clip') == clip))
     winners = []
@@ -20,9 +20,9 @@ def check_wagers(clip, total_clip_count):
         # pay out
         pay_out = result['amount'] + result['amount'] * total_clip_count / result['start_count']
         db.update(add('bucks', pay_out),
-                  where('type') == 'account' and where('id') == result['user_id'])
+                  (where('type') == 'account') & (where('id') == result['user_id']))
         # delete wager record
-        db.remove(is_wager and where('wager_id') == result['wager_id'])
+        db.remove(is_wager & (where('wager_id') == result['wager_id']))
         winners.append((result['disp_name'], pay_out, result['clip']))
 
     return winners
@@ -36,7 +36,7 @@ def add_bucks(amount):
 def add_play_record(clip):
     # increment if exists, otherwise create new record
     if len(db.update(increment('plays'),
-                     where('type') == 'play' and where('clip') == clip)) == 0:
+                     (where('type') == 'play') & (where('clip') == clip))) == 0:
         db.insert({'type': 'play',
                    'clip': clip,
                    'plays': 1})
@@ -53,10 +53,10 @@ def new_account(discord_id, name):
 def new_wager(disp_name, account, amount, clip, count):
     # deduct amount
     db.update(subtract('bucks', amount),
-              where('type') == 'account' and where('id') == account['id'])
+              (where('type') == 'account') & (where('id') == account['id']))
     # update display name if needed
     db.update(set('name', disp_name),
-              where('type') == 'account' and where('id') == account['id'])
+              (where('type') == 'account') & (where('id') == account['id']))
     # place wager
     db.insert({'type': 'wager',
                'wager_id': str(uuid.uuid4()),
@@ -75,7 +75,7 @@ def new_macro(macro_name, macro):
 
 
 def get_macro(macro_name):
-    result = db.search(where('type') == 'macro' and where('name') == macro_name)
+    result = db.search((where('type') == 'macro') & (where('name') == macro_name))
     return result[0] if len(result) > 0 else None
 
 
@@ -84,20 +84,20 @@ def get_accounts():
 
 
 def get_account(discord_id):
-    result = db.search(where('type') == 'account' and where('id') == discord_id)
+    result = db.search((where('type') == 'account') & (where('id') == discord_id))
     return result[0] if len(result) > 0 else None
 
 
 def get_wagers(user):
     if user is not None:
-        return db.search(where('type') == 'wager' and where('disp_name') == user)
+        return db.search((where('type') == 'wager') & (where('disp_name') == user))
     else:
         return db.search(where('type') == 'wager')
 
 
 def get_plays(clip=None):
     if clip is not None:
-        return db.get(where('type') == 'play' and where('clip') == clip)
+        return db.get((where('type') == 'play') & (where('clip') == clip))
     else:
         results = db.search(where('type') == 'play')
         # sort by plays
