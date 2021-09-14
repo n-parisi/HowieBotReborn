@@ -1,6 +1,7 @@
 from discord.ext import commands
 from pkg.cogs.sounds import get_clips, to_int
 import pkg.utils.db_utils as db_utils
+from pkg.utils.config import cfg
 
 
 class Wagers(commands.Cog):
@@ -58,5 +59,5 @@ class Wagers(commands.Cog):
 
     @commands.command()
     async def freemoney(self, ctx, amt, user_id=None):
-        if ctx.message.author.id == 156927514130907136:
-            db_utils.add_bucks(to_int(amt), to_int(user_id))
+        if ctx.message.author.id == cfg['admin_id']:
+            db_utils.add_bucks(to_int(amt), to_int(user_id) if user_id is not None else None)

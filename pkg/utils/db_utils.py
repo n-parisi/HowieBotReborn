@@ -36,6 +36,7 @@ def add_bucks(amount, user_id=None):
         db.update(add('bucks', amount),
                   (where('type') == 'account') & (where('id') == user_id))
 
+
 def add_play_record(clip):
     # increment if exists, otherwise create new record
     if len(db.update(increment('plays'),
