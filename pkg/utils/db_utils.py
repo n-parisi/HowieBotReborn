@@ -10,7 +10,7 @@ def check_wagers(clip, total_clip_count):
     is_wager = where('type') == 'wager'
     # decrease count of miss
     db.update(decrement('count'),
-              is_wager & (where('clip') != 'clip'))
+              is_wager & (where('clip') != clip))
     # delete the zeros
     db.remove(is_wager & (where('count') == 0))
     # get the hits
@@ -21,6 +21,8 @@ def check_wagers(clip, total_clip_count):
         pay_out = result['amount'] + result['amount'] * total_clip_count / result['start_count']
         db.update(add('bucks', pay_out),
                   (where('type') == 'account') & (where('id') == result['user_id']))
+        # record win
+        add_win_record((result['user_id'], result['disp_name'], clip, pay_out))
         # delete wager record
         db.remove(is_wager & (where('wager_id') == result['wager_id']))
         winners.append((result['disp_name'], pay_out, result['clip']))
@@ -44,6 +46,15 @@ def add_play_record(clip):
         db.insert({'type': 'play',
                    'clip': clip,
                    'plays': 1})
+
+
+def add_win_record(win_record):
+    # win_record is (user_id, disp_name, clip, amt)
+    db.insert({'type': 'win_record',
+               'user_id': win_record[0],
+               'disp_name': win_record[1],
+               'clip': win_record[2],
+               'amount': win_record[3]})
 
 
 def new_account(discord_id, name):
@@ -107,3 +118,10 @@ def get_plays(clip=None):
         # sort by plays
         results.sort(key=lambda x: x['plays'], reverse=True)
         return results
+
+
+def get_win_records(disp_name=None):
+    if disp_name is not None:
+        return db.search((where('type') == 'win_record') & (where('disp_name') == disp_name))
+    else:
+        return db.search(where('type') == 'win_record')

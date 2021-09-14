@@ -58,6 +58,47 @@ class Wagers(commands.Cog):
         await ctx.send(results_str if len(results_str) > 0 else "None")
 
     @commands.command()
+    async def winners(self, ctx, arg=None, arg2=None):
+        if arg is None or to_int(arg) > -1:
+            arg = 50 if arg is None else to_int(arg)
+            results = db_utils.get_win_records()
+            results.reverse()
+            results = results[:arg]
+        else:
+            arg2 = 50 if arg2 is None else to_int(arg2)
+            results = db_utils.get_win_records(arg)
+            results.reverse()
+            results = results[:arg2]
+
+        results_str = ''
+        for result in results:
+            results_str += f"{result['disp_name']} won ${format(result['amount'], '.2f')} for {result['clip']}\n"
+            if len(results_str) > 1700:
+                await ctx.send(results_str)
+                results_str = ""
+        await ctx.send(results_str if len(results_str) > 0 else "None")
+
+    @commands.command()
+    async def bigwins(self, ctx, arg=None):
+        if arg is None or to_int(arg) > -1:
+            arg = 25 if arg is None else to_int(arg)
+            results = db_utils.get_win_records()
+            results.sort(key=lambda x: x['amount'], reverse=True)
+            results = results[:arg]
+        else:
+            results = db_utils.get_win_records(arg)
+            results.sort(key=lambda x: x['amount'], reverse=True)
+            results = results[:10]
+
+        results_str = ''
+        for result in results:
+            results_str += f"{result['disp_name']} won {format(result['amount'], '.2f')} for {result['clip']}\n"
+            if len(results_str) > 1700:
+                await ctx.send(results_str)
+                results_str = ""
+        await ctx.send(results_str if len(results_str) > 0 else "None")
+
+    @commands.command()
     async def freemoney(self, ctx, amt, user_id=None):
         if ctx.message.author.id == cfg['admin_id']:
             db_utils.add_bucks(to_int(amt), to_int(user_id) if user_id is not None else None)
