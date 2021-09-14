@@ -92,7 +92,7 @@ class Wagers(commands.Cog):
 
         results_str = ''
         for result in results:
-            results_str += f"{result['disp_name']} won {format(result['amount'], '.2f')} for {result['clip']}\n"
+            results_str += f"{result['disp_name']} won ${format(result['amount'], '.2f')} for {result['clip']}\n"
             if len(results_str) > 1700:
                 await ctx.send(results_str)
                 results_str = ""
