@@ -126,7 +126,7 @@ class Wagers(commands.Cog):
         # get users account
         user = ctx.message.author
         howie_account = db_utils.get_account(user.id)
-        if amount > howie_account['bucks']:
+        if amount > howie_account['bucks'] or amount < 1:
             await ctx.send("You don't have enough HowieBucks to tip HowieBot")
         else:
             result = db_utils.add_tip(amount, howie_account)
