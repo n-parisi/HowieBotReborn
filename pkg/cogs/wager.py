@@ -1,7 +1,30 @@
+import random
+
 from discord.ext import commands
 from pkg.cogs.sounds import get_clips, to_int
 import pkg.utils.db_utils as db_utils
 from pkg.utils.config import cfg
+
+HOWIE_QUOTES = ["I am beloved by millions",
+                "Please wash your tip before giving it to me",
+                "oh sheit, im gonna nut." ,
+                "Thanks for the tip budnut! Still not gonna play Gar!",
+                "Thanks bud! All proceeds go to a fresh UN-RE for me!" ,
+                "Oh shit thanks USER, Ill give you a sneaky here." ,
+                "Whats your name again loser?",
+                "What do you know skeetface?",
+                "HAHA you call that a tip?",
+                "Ive seen bigger tips on my dad" ,
+                "HOWIEWOWIE now thats a tip!",
+                "here's a tip for you, next roll is going to be RANDOMCLIPNAME",
+                "Ill tell you whats NOT coming up next. Gar",
+                "I have a gar in my pocket can you smell it?",
+                "Back2Back JungleBoogie coming right up",
+                "I have no peen",
+                "Maybe you should stop betting. . .",
+                "Maybe you should check out this jelqing manuel",
+                "HowieHAPPY",
+                "Have you seen the hit hidden camera show Mobbed?"]
 
 
 class Wagers(commands.Cog):
@@ -97,6 +120,22 @@ class Wagers(commands.Cog):
                 await ctx.send(results_str)
                 results_str = ""
         await ctx.send(results_str if len(results_str) > 0 else "None")
+
+    @commands.command()
+    async def tip(self, ctx, amount: int):
+        # get users account
+        user = ctx.message.author
+        howie_account = db_utils.get_account(user.id)
+        if amount > howie_account['bucks']:
+            await ctx.send("You don't have enough HowieBucks to tip HowieBot")
+        else:
+            result = db_utils.add_tip(amount, howie_account)
+            total_tips = result['total']
+            howie_message = random.choice(HOWIE_QUOTES)\
+                .replace("USER", howie_account["name"])\
+                .replace("RANDOMCLIPNAME", random.choice(get_clips()))
+
+            await ctx.send(f"{howie_message} --- I've been tipped ${total_tips}")
 
     @commands.command()
     async def freemoney(self, ctx, amt, user_id=None):

@@ -48,6 +48,19 @@ def add_play_record(clip):
                    'plays': 1})
 
 
+def add_tip(amt, account):
+    # deduct amount
+    db.update(subtract('bucks', amt),
+              (where('type') == 'account') & (where('id') == account['id']))
+    if len(db.update(add('total', amt),
+                     (where('type') == 'tips'))) == 0:
+        db.insert({'type': 'tips',
+                   'total': amt})
+    else:
+        result = db.get(where('type') == 'tips')
+        return result
+
+
 def add_win_record(win_record):
     # win_record is (user_id, disp_name, clip, amt)
     db.insert({'type': 'win_record',
