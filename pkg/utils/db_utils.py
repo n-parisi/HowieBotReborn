@@ -48,12 +48,15 @@ def add_play_record(clip):
                    'plays': 1})
 
 
-def add_tip(amt, account):
+def add_tip(amt, account, send_to_id=None):
     # deduct amount
     db.update(subtract('bucks', amt),
               (where('type') == 'account') & (where('id') == account['id']))
-    if len(db.update(add('total', amt),
-                     (where('type') == 'tips'))) == 0:
+    if send_to_id is not None:
+        db.update(add('bucks', amt),
+                  (where('type') == 'account') & (where('id') == send_to_id))
+    elif len(db.update(add('total', amt),
+                       (where('type') == 'tips'))) == 0:
         db.insert({'type': 'tips',
                    'total': amt})
     else:

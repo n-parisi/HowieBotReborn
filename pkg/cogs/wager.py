@@ -1,6 +1,7 @@
 import random
 
 from discord.ext import commands
+from discord import User
 from pkg.cogs.sounds import get_clips, to_int
 import pkg.utils.db_utils as db_utils
 from pkg.utils.config import cfg
@@ -122,12 +123,15 @@ class Wagers(commands.Cog):
         await ctx.send(results_str if len(results_str) > 0 else "None")
 
     @commands.command()
-    async def tip(self, ctx, amount: int):
+    async def tip(self, ctx, amount: int, mention: User = None):
         # get users account
         user = ctx.message.author
         howie_account = db_utils.get_account(user.id)
         if amount > howie_account['bucks'] or amount < 1:
-            await ctx.send("You don't have enough HowieBucks to tip HowieBot")
+            await ctx.send("You don't have enough HowieBucks to tip.")
+        elif mention is not None:
+            db_utils.add_tip(amount, howie_account, mention.id)
+            await ctx.send(f"{user.name} just tipped {mention.name} ${amount}.")
         else:
             result = db_utils.add_tip(amount, howie_account)
             total_tips = result['total']
