@@ -142,6 +142,30 @@ class Wagers(commands.Cog):
             await ctx.send(f"{howie_message} --- I've been tipped ${total_tips}")
 
     @commands.command()
+    async def buystock(self, ctx, clip: str):
+        # get users account
+        user = ctx.message.author
+        howie_account = db_utils.get_account(user.id)
+        if howie_account['bucks'] < 200:
+            await ctx.send("You need $200 to buy a stock.")
+        elif clip not in get_clips():
+            await ctx.send("Not a valid clip")
+        else:
+            db_utils.buy_stock(howie_account, clip)
+            await ctx.send(f"{howie_account['name']} bought stock in {clip}")
+
+    @commands.command()
+    async def portfolio(self, ctx):
+        # get users account
+        user = ctx.message.author
+        results = db_utils.get_stocks(user.id)
+        result_str = ''
+        for result in results:
+            result_str += f"{result['clip']} --- shares: {result['shares']} " \
+                          f"--- total paid: ${format(result['total_payout'], '.2f')}\n"
+        await ctx.send(result_str)
+
+    @commands.command()
     async def freemoney(self, ctx, amt, user_id=None):
         if ctx.message.author.id == cfg['admin_id']:
             db_utils.add_bucks(to_int(amt), to_int(user_id) if user_id is not None else None)

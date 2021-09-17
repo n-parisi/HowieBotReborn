@@ -4,6 +4,9 @@ import uuid
 
 db = TinyDB('resources/db.json')
 
+STOCK_COST = 200
+STOCK_PAYOUT = 10
+
 
 def check_wagers(clip, total_clip_count):
     add_play_record(clip)
@@ -28,6 +31,40 @@ def check_wagers(clip, total_clip_count):
         winners.append((result['disp_name'], pay_out, result['clip']))
 
     return winners
+
+
+def check_stocks(clip):
+    stocks = db.search((where('type') == 'stock') &
+                       (where('clip') == clip))
+    winners = []
+    for stock in stocks:
+        owner_id = stock['user_id']
+        pay_out = STOCK_PAYOUT * stock['shares']
+        db.update(add('bucks', pay_out),
+                  (where('type') == 'account') & (where('id') == owner_id))
+        db.update(add('total_payout', pay_out),
+                  (where('type') == 'stock') &
+                  (where('user_id') == owner_id) &
+                  (where('clip') == clip))
+        winners.append((stock['disp_name'], pay_out))
+    return winners
+
+
+def buy_stock(account, clip):
+    # deduct the cost
+    db.update(subtract('bucks', STOCK_COST),
+              (where('type') == 'account') & (where('id') == account['id']))
+    # purchase the stock
+    if len(db.update(increment('shares'),
+                     (where('type') == 'stock') &
+                     (where('clip') == clip) &
+                     (where('user_id') == account['id']))) == 0:
+        db.insert({'type': 'stock',
+                   'user_id': account['id'],
+                   'disp_name': account['name'],
+                   'clip': clip,
+                   'shares': 1,
+                   'total_payout': 0})
 
 
 def add_bucks(amount, user_id=None):
@@ -141,3 +178,9 @@ def get_win_records(disp_name=None):
         return db.search((where('type') == 'win_record') & (where('disp_name') == disp_name))
     else:
         return db.search(where('type') == 'win_record')
+
+
+def get_stocks(user_id):
+    return db.search((where('type') == 'stock') &
+                     (where('user_id') == user_id))
+

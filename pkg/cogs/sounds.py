@@ -33,9 +33,13 @@ class Sounds(commands.Cog):
             if sound == 'random':
                 random_sound = random.choice(all_sounds)
                 winners = db.check_wagers(random_sound, len(all_sounds))
+                stock_winners = db.check_stocks(random_sound)
                 if len(winners) > 0:
                     for winner in winners:
                         await ctx.send(f"{winner[0]} won ${format(winner[1], '.2f')} on {winner[2]}")
+                if len(stock_winners):
+                    for stock_winner in stock_winners:
+                        await ctx.send(f"{stock_winner[0]} received ${format(stock_winner[1], '.2f')} from shares.")
                 await play_clip(channel, get_clip_file(random_sound))
             elif sound == 'test':
                 await play_clip(channel, 'resources/tmp.mp3')
