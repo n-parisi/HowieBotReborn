@@ -2,5 +2,5 @@ use_aws_resources: true
 bucket_name: nparisi-bucket
 pics_prefix: resources/pics/
 sounds_prefix: resources/sounds/
-
 allow_savefile: false
+admin_id: 156927514130907136

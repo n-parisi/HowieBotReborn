@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from pkg.cogs.pics import Pics
 from pkg.cogs.sounds import Sounds
+from pkg.cogs.wager import Wagers
 
 # create bot
 bot = commands.Bot(command_prefix='!', help_command=None)
@@ -11,6 +12,7 @@ bot = commands.Bot(command_prefix='!', help_command=None)
 # attach cogs
 bot.add_cog(Sounds(bot))
 bot.add_cog(Pics(bot))
+bot.add_cog(Wagers(bot))
 
 
 # TODO: Use built in help command instead of...this
@@ -53,11 +55,18 @@ async def build(ctx):
         build_str = "undefined"
     await ctx.send(build_str)
 
+
 @bot.command()
 async def servers(ctx):
-  servers = list(bot.guilds)
-  await ctx.send(f"Connected on {str(len(servers))} servers:")
-  await ctx.send('\n'.join(guild.name for guild in servers))
+    servers = list(bot.guilds)
+    await ctx.send(f"Connected on {str(len(servers))} servers:")
+    await ctx.send('\n'.join(guild.name for guild in servers))
+
+
+@bot.command()
+async def unstuck(ctx):
+    for client in bot.voice_clients:
+        await client.disconnect(force=True)
 
 # start bot
 print("Starting bot!")
