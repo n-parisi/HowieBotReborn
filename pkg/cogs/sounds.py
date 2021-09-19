@@ -202,7 +202,7 @@ class Sounds(commands.Cog):
         while keep_listening:
             random_clip = random.choice(get_clips())
             plays = db.get_plays(random_clip)
-            await message.edit(content=f"Now Playing: {random_clip} --- Plays: {plays['plays'] if plays is not None else 1}")
+            await message.edit(content=f"Now Playing: {random_clip} --- Plays: {plays['plays']+1 if plays is not None else 1}")
             await play_clip(voice.channel, get_clip_file(random_clip))
             await check_stocks_wagers(ctx, [random_clip])
             await message.edit(content='Now Playing: ')
