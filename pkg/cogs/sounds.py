@@ -262,7 +262,7 @@ async def simple_delay(ctx, args):
     if len(args) == 1:
         clip_metadata = [(random.choice(get_clips()), delay if i > 0 else 0) for i in range(5)]
     else:
-        clip_metadata = [(args[i], delay if i > 0 else 0) for i in range(len(args) - 1)]
+        clip_metadata = [(args[i].strip(), delay if i > 0 else 0) for i in range(len(args) - 1)]
     valid, clip_metadata = validate_clip_metadata(clip_metadata)
     if valid:
         await mix_and_play(ctx, clip_metadata)
@@ -284,8 +284,8 @@ async def advanced_delay(ctx, args):
 
     # Construct list of tuples (sound, delay)
     # First is always 0 delay
-    clip_metadata = [(args[0], 0)]
-    clip_metadata.extend([(args[n+1], to_int(args[n])) for n in range(1, len(args), 2)])
+    clip_metadata = [(args[0].strip(), 0)]
+    clip_metadata.extend([(args[n+1].strip(), to_int(args[n])) for n in range(1, len(args), 2)])
     valid, clip_metadata = validate_clip_metadata(clip_metadata)
     if valid:
         await mix_and_play(ctx, clip_metadata)
