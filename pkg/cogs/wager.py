@@ -155,10 +155,13 @@ class Wagers(commands.Cog):
             await ctx.send(f"{howie_account['name']} bought stock in {clip}")
 
     @commands.command()
-    async def portfolio(self, ctx):
-        # get users account
-        user = ctx.message.author
-        results = db_utils.get_stocks(user.id)
+    async def portfolio(self, ctx, user=None):
+        if user is None:
+            # get users account
+            caller = ctx.message.author
+            results = db_utils.get_stocks(caller.id)
+        else:
+            results = db_utils.get_stocks_by_disp(user)
         result_str = ''
         for result in results:
             result_str += f"{result['clip']} --- shares: {result['shares']} " \

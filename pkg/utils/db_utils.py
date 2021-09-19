@@ -184,3 +184,9 @@ def get_stocks(user_id):
     return db.search((where('type') == 'stock') &
                      (where('user_id') == user_id))
 
+
+def get_stocks_by_disp(disp_name):
+    return db.search((where('type') == 'stock') &
+                     (where('disp_name') == disp_name))
+
+

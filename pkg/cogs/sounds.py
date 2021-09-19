@@ -32,15 +32,8 @@ class Sounds(commands.Cog):
             channel = user.voice.channel
             if sound == 'random':
                 random_sound = random.choice(all_sounds)
-                winners = db.check_wagers(random_sound, len(all_sounds))
-                stock_winners = db.check_stocks(random_sound)
-                if len(winners) > 0:
-                    for winner in winners:
-                        await ctx.send(f"{winner[0]} won ${format(winner[1], '.2f')} on {winner[2]}")
-                if len(stock_winners):
-                    for stock_winner in stock_winners:
-                        await ctx.send(f"{stock_winner[0]} received ${format(stock_winner[1], '.2f')} from shares.")
                 await play_clip(channel, get_clip_file(random_sound))
+                await check_stocks_wagers(ctx, [random_sound])
             elif sound == 'test':
                 await play_clip(channel, 'resources/tmp.mp3')
             elif sound in all_sounds:
@@ -196,6 +189,29 @@ class Sounds(commands.Cog):
         else:
             await ctx.send('Invalid.')
 
+    @commands.command()
+    async def player(self, ctx):
+        voice = ctx.message.author.voice
+        message = await ctx.send('Now Playing: ')
+        await message.add_reaction(u"\u267b")
+
+        def check(reaction, user):
+            return reaction.message.id == message.id and str(reaction.emoji) == u"\u267b"
+
+        keep_listening = True
+        while keep_listening:
+            random_clip = random.choice(get_clips())
+            plays = db.get_plays(random_clip)
+            await message.edit(content=f"Now Playing: {random_clip} --- Plays: {plays['plays'] if plays is not None else 1}")
+            await play_clip(voice.channel, get_clip_file(random_clip))
+            await check_stocks_wagers(ctx, [random_clip])
+            await message.edit(content='Now Playing: ')
+            try:
+                reaction, user = await ctx.bot.wait_for('reaction_add', timeout=300.0, check=check)
+                await message.remove_reaction(reaction.emoji, user)
+            except asyncio.TimeoutError:
+                keep_listening = False
+
 
 async def play_clip(channel, sound_file):
     voice_client = await channel.connect()
@@ -234,29 +250,63 @@ async def simple_delay(ctx, args):
     # Parse delay
     delay = to_int(args[-1])
 
+    # Parse randoms
+    randomized_sounds = []
+    for i in range(0, len(args)):
+        if args[i].strip() == 'random':
+            random_sound = random.choice(get_clips())
+            randomized_sounds.append(random_sound)
+            args[i] = random_sound
     # Construct list of tuples (sound, delay)
     # if delay is the only parameter, mix 5 random sounds
     if len(args) == 1:
         clip_metadata = [(random.choice(get_clips()), delay if i > 0 else 0) for i in range(5)]
     else:
-        clip_metadata = [(randomize_if_random(args[i]), delay if i > 0 else 0) for i in range(len(args) - 1)]
+        clip_metadata = [(args[i], delay if i > 0 else 0) for i in range(len(args) - 1)]
     valid, clip_metadata = validate_clip_metadata(clip_metadata)
     if valid:
         await mix_and_play(ctx, clip_metadata)
+        # send randoms to check wagers and stocks
+        if len(randomized_sounds) <= 3:
+            await check_stocks_wagers(ctx, randomized_sounds)
     else:
         await ctx.send("Either clips are invalid or delay is greater than 30000.")
 
 
 async def advanced_delay(ctx, args):
+    # Parse randoms
+    randomized_sounds = []
+    for i in range(0, len(args)):
+        if args[i].strip() == 'random':
+            random_sound = random.choice(get_clips())
+            randomized_sounds.append(random_sound)
+            args[i] = random_sound
+
     # Construct list of tuples (sound, delay)
     # First is always 0 delay
-    clip_metadata = [(randomize_if_random(args[0]), 0)]
-    clip_metadata.extend([(randomize_if_random(args[n+1]), to_int(args[n])) for n in range(1, len(args), 2)])
+    clip_metadata = [(args[0], 0)]
+    clip_metadata.extend([(args[n+1], to_int(args[n])) for n in range(1, len(args), 2)])
     valid, clip_metadata = validate_clip_metadata(clip_metadata)
     if valid:
         await mix_and_play(ctx, clip_metadata)
+        # send randoms to check wagers and stocks
+        if len(randomized_sounds) <= 3:
+            await check_stocks_wagers(ctx, randomized_sounds)
     else:
         await ctx.send("Either clips are invalid or delay is greater than 30000.")
+
+
+async def check_stocks_wagers(ctx, clips):
+    for clip in clips:
+        winners = db.check_wagers(clip, len(get_clips()))
+        stock_winners = db.check_stocks(clip)
+        if len(winners) > 0:
+            for winner in winners:
+                await ctx.send(f"{winner[0]} won ${format(winner[1], '.2f')} on {winner[2]}")
+        if len(stock_winners):
+            for stock_winner in stock_winners:
+                await ctx.send(
+                    f"{stock_winner[0]} received ${format(stock_winner[1], '.2f')} from shares in {clip}.")
 
 
 def get_clips():
