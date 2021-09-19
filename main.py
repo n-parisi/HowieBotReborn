@@ -43,7 +43,8 @@ async def help(ctx, subhelp=None):
                        '   !play <clip name>    Play a specific sound clip\n'
                        '   !newclip             Create a new clip. "!help newclip" for more\n'
                        '   !playlist            Play a lit of clips. "!help playlist" for more\n'
-                       '   !delay               Overlay clips after a delay. "!help delay" for more```')
+                       '   !delay               Overlay clips after a delay. "!help delay" for more\n\n'
+                       'For more complete documentation, see: \nhttps://github.com/n-parisi/HowieBotReborn```')
 
 
 @bot.command()
