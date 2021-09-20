@@ -89,6 +89,14 @@ def add_tip(amt, account, send_to_id=None):
     # deduct amount
     db.update(subtract('bucks', amt),
               (where('type') == 'account') & (where('id') == account['id']))
+              
+    if len(db.update(add('total', amt),
+                     (where('type') == 'usertips') & (where('id') == account['id']))) == 0:
+        db.insert({'type': 'usertips',
+                   'total': amt,
+                   'id': account['id'],
+                   'name': account["name"]})
+                   
     if send_to_id is not None:
         db.update(add('bucks', amt),
                   (where('type') == 'account') & (where('id') == send_to_id))
@@ -190,3 +198,21 @@ def get_stocks_by_disp(disp_name):
                      (where('disp_name') == disp_name))
 
 
+def get_tip_records(disp_name=None):
+    if disp_name is not None:
+        return db.search((where('type') == 'usertips') & (where('name') == disp_name))
+    else:
+        return db.search(where('type') == 'usertips')
+        
+     
+def get_export():
+    result = db.all()
+    return result
+    
+    
+def get_win_records_by_clip(clip_name):
+    return db.search((where('type') == 'win_record') & (where('clip') == clip_name))
+    
+    
+def get_stock_by_clip(clip_name):
+    return db.search((where('type') == 'stock') & (where('clip') == clip_name))

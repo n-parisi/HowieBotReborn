@@ -1,7 +1,7 @@
 import random
 
 from discord.ext import commands
-from discord import User
+from discord import User, File
 from pkg.cogs.sounds import get_clips, to_int
 import pkg.utils.db_utils as db_utils
 from pkg.utils.config import cfg
@@ -140,7 +140,25 @@ class Wagers(commands.Cog):
                 .replace("RANDOMCLIPNAME", random.choice(get_clips()))
 
             await ctx.send(f"{howie_message} --- I've been tipped ${total_tips}")
-
+    
+    
+    @commands.command()
+    async def tippers(self, ctx, arg=None):
+        if arg is None:
+            results = db_utils.get_tip_records()
+            results.sort(key=lambda x: x['total'], reverse=True)
+        else:
+            results = db_utils.get_tip_records(arg)
+        
+        results_str = ''
+        for result in results:
+            results_str += f"{result['name']} has tipped ${format(result['total'], '.2f')}!\n"
+            if len(results_str) > 1700:
+                await ctx.send(results_str)
+                results_str = ""
+        await ctx.send(results_str if len(results_str) > 0 else "None")
+        
+        
     @commands.command()
     async def buystock(self, ctx, clip: str):
         # get users account
@@ -172,3 +190,49 @@ class Wagers(commands.Cog):
     async def freemoney(self, ctx, amt, user_id=None):
         if ctx.message.author.id == cfg['admin_id']:
             db_utils.add_bucks(to_int(amt), to_int(user_id) if user_id is not None else None)
+
+            
+    @commands.command()
+    async def exportAll(self, ctx):
+        results = db_utils.get_export();
+        results.sort(key=lambda x: x['type'], reverse=True)
+        with open('resources/exportAll.csv', 'w') as file:
+            for result in results:
+                jason_str = ""
+                i = 0
+                for thing in result:
+                    if i == len(result) - 1:
+                        jason_str += f"{thing}, {result[thing]}\n"
+                    else:
+                        jason_str += f"{thing}, {result[thing]}, "
+                    i += 1
+                file.write(jason_str)
+        dataFile = File('resources/exportAll.csv')
+        await ctx.send(file=dataFile, content="Exported database:\n")
+        
+        
+    @commands.command()
+    async def payout(self, ctx, arg=None):
+        if arg is not None:
+            results = db_utils.get_win_records_by_clip(arg)
+            if len(results) > 0:
+                sum = 0
+                for result in results:
+                    sum += result['amount']
+                await ctx.send(f"{arg} has paid out ${format(sum, '.2f')} in wagers\n")
+            else:
+                if arg not in get_clips():
+                    await ctx.send("Last value must be a valid clip name\n")
+                else:
+                    await ctx.send(f"{arg} has not paid out any wagers yet\n")  
+            results = db_utils.get_stock_by_clip(arg)
+            if len(results) > 0:
+                sum = 0
+                for result in results:
+                    sum += result['total_payout']
+                await ctx.send(f"{arg} has paid out ${format(sum, '.2f')} in stocks\n")
+            else:
+                if arg in get_clips():
+                    await ctx.send(f"{arg} has not paid out any stocks yet\n")
+        else:
+            await ctx.send("Last value needs to be a clip name\n")
