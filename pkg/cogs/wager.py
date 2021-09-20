@@ -1,8 +1,7 @@
 import random
-import discord
 
 from discord.ext import commands
-from discord import User
+from discord import User, File
 from pkg.cogs.sounds import get_clips, to_int
 import pkg.utils.db_utils as db_utils
 from pkg.utils.config import cfg
@@ -208,7 +207,7 @@ class Wagers(commands.Cog):
                         jason_str += f"{thing}, {result[thing]}, "
                     i += 1
                 file.write(jason_str)
-        dataFile = discord.File('resources/exportAll.csv')
+        dataFile = File('resources/exportAll.csv')
         await ctx.send(file=dataFile, content="Exported database:\n")
         
         
