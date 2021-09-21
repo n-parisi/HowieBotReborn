@@ -10,6 +10,8 @@ STOCK_PAYOUT = 10
 
 def check_wagers(clip, total_clip_count):
     add_play_record(clip)
+    reset_clip_counter(clip)
+    increment_clip_counters(clip)
     is_wager = where('type') == 'wager'
     # decrease count of miss
     db.update(decrement('count'),
@@ -83,7 +85,23 @@ def add_play_record(clip):
         db.insert({'type': 'play',
                    'clip': clip,
                    'plays': 1})
+                   
+                   
+def reset_clip_counter(clip):
+    result = db.search((where('type') == 'play_counter') & (where('clip') == clip))
+    if len(result) == 0:
+        db.insert({'type': 'play_counter',
+                   'clip': clip,
+                   'counter': 0})
+    else:
+        db.update(subtract('counter', result['counter']), 
+                     (where('type') == 'play_counter') & (where('clip') == clip))
+        
+        
 
+def increment_clip_counters(clip):
+    db.update(increment('counter'), (where('type') == 'play_counter') & (where('clip') != clip))
+        
 
 def add_tip(amt, account, send_to_id=None):
     # deduct amount
@@ -179,6 +197,9 @@ def get_plays(clip=None):
         # sort by plays
         results.sort(key=lambda x: x['plays'], reverse=True)
         return results
+        
+def get_plays_counter(clip):
+    return db.get((where('type') == 'play_counter') & (where('clip') == clip))
 
 
 def get_win_records(disp_name=None):

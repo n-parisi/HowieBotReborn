@@ -68,6 +68,15 @@ async def servers(ctx):
 async def unstuck(ctx):
     for client in bot.voice_clients:
         await client.disconnect(force=True)
+        
+
+@commands.command()
+async def roll(self, ctx, arg=None):
+    sides = to_int(arg)
+    if sides > 1:
+        await ctx.send(f"Result: {random.choice(range(1, sides))}")
+    else:
+        await ctx.send("Enter a valid number of sides.")
 
 # start bot
 print("Starting bot!")

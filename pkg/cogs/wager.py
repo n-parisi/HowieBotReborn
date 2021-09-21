@@ -84,12 +84,12 @@ class Wagers(commands.Cog):
     @commands.command()
     async def winners(self, ctx, arg=None, arg2=None):
         if arg is None or to_int(arg) > -1:
-            arg = 50 if arg is None else to_int(arg)
+            arg = 10 if arg is None else to_int(arg)
             results = db_utils.get_win_records()
             results.reverse()
             results = results[:arg]
         else:
-            arg2 = 50 if arg2 is None else to_int(arg2)
+            arg2 = 10 if arg2 is None else to_int(arg2)
             results = db_utils.get_win_records(arg)
             results.reverse()
             results = results[:arg2]
@@ -236,3 +236,18 @@ class Wagers(commands.Cog):
                     await ctx.send(f"{arg} has not paid out any stocks yet\n")
         else:
             await ctx.send("Last value needs to be a clip name\n")
+            
+            
+    @commands.command()
+    async def lasthit(self, ctx, arg=None):
+        if arg is None:
+            await ctx.send("Enter a clip to check.")
+        else:
+            if arg in get_clips():
+                result = db_utils.get_plays_counter(arg)
+                if result is None:
+                    await ctx.send(f"{arg} must play once before tracking can begin.")
+                else:
+                    await ctx.send(f"It has been {result['counter']} spins since {arg} has hit.")
+            else:
+                await ctx.send("Enter a valid clip to check.")

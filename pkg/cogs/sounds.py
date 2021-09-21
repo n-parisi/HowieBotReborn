@@ -85,6 +85,7 @@ class Sounds(commands.Cog):
 
     @commands.command()
     async def newclip(self, ctx, yt_link, start, duration_str):
+        format_timestamp(start)
         duration = to_float(duration_str)
         if not is_admin_request(ctx):
             await ctx.send('Clip creation only available to admins.')
@@ -211,8 +212,14 @@ class Sounds(commands.Cog):
                 await message.remove_reaction(reaction.emoji, user)
             except asyncio.TimeoutError:
                 keep_listening = False
-
-
+                
+             
+    @commands.command()
+    async def totalclips(self, ctx):
+        await ctx.send(f"There are {len(get_clips())} clips.")
+        
+            
+            
 async def play_clip(channel, sound_file):
     voice_client = await channel.connect()
     source = discord.FFmpegPCMAudio(sound_file)
@@ -330,6 +337,33 @@ def validate_clip_metadata(clip_metadata):
         clip_metadata = [(path, sum([delay for _, delay in clip_metadata[:i + 1]]))
                          for i, (path, delay) in enumerate(clip_metadata)]
         return True, clip_metadata
+        
+        
+def format_timestamp(timestamp):
+    # First add trailing zero to decimal if needed
+    if timestamp[-3] != '.' & timestamp[-2] == '.':
+        timestamp = timestamp + '0' 
+    # Then check 
+    if re.match(r'\d{2}:\d{2}:\d{2}\.\d{2}', timestamp) is None:
+        if re.match(r'\d{1}:\d{2}:\d{2}\.\d{2}', timestamp) is None:
+            if re.match(r'\d{2}:\d{2}\.\d{2}', timestamp) is None:
+                if re.match(r'\d{1}:\d{2}\.\d{2}', timestamp) is None:
+                    if re.match(r'\d{2}\.\d{2}', timestamp) is None:
+                        if re.match(r'\d{1}\.\d{2}', timestamp) is None:
+                            timestamp = 'error'
+                        else:
+                            timestamp = '00:00:0' + timestamp
+                    else:
+                        timestamp = '00:00' + timestamp
+                else:
+                    timestamp = '00:0' + timestamp
+            else:
+                timestamp = '00:' + timestamp
+        else:
+            timestamp = '0' + timestamp
+    else:
+        #already formatted
+    return timestamp
 
 
 async def mix_and_play(ctx, clip_metadata):
