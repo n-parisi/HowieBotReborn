@@ -18,6 +18,6 @@ def save_resource(bucket_name, local_file):
     client = boto3.client('s3')
     client.upload_file(
         local_file, bucket_name, local_file,
-        ExtraArgs={'StorageClass': 'ONEZONE_IA'}
+        ExtraArgs={'StorageClass': 'STANDARD'}
     )
     print(f'Saving {local_file}')
