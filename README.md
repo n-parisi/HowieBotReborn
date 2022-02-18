@@ -21,6 +21,7 @@ HowieBot responds to the following commands in chat:
 - `!savefile` - Save a new clip from an attached .wav or .mp3 file.
 - `!resync` - If using AWS resources, deletes all cips and redownloads from source.
 - `!unstuck` - Disconnects all active voice clients. Can be useful for fixing a stuck bot, or stopping a clip early.
+- `!exportAll` - Exports the db.json file into a CSV file for statistical analysis.
 
 ##### Delay
 
@@ -50,10 +51,12 @@ Less attempts means a higher payout!
 - `!winners <username> <X>` - Show the last X wins for a user.
 - `!tip <amount>` - Tip HowieBot some of your HowieBucks! This serves no purpose other than feeding superstition :)
 - `!tip <amount> <user_mention>` - Tip another user, denoted by a Discord mention.
+- '!tippers - Shows the amount each user has tipped HowieBot.
 - `!freemoney <amount> <user>` - Give every user in the system some amount of money, or denote a specific user by their
 unique discord id. Note: This command can only be used by the admin specified in the config file.
 - `!buystock <clip>` - Buy a share of a clip for $200. When that clip plays, shareholders are paid $10 per share.
 - `!portfolio <username>` - Show stocks owned by a user, or call with no username to show own portfolio.
+- '!payout <clip> - Shows the amount a clip has paid out in wagers and stocks.
 
 ### Configuration
 
